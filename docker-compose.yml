@@ -1,0 +1,17 @@
+services:
+  ms-user-management.api:
+    container_name: ms-user-management
+    image: ms-user-management.api
+    build:
+      context: .
+      dockerfile: src/ms-user-management.Api/Dockerfile
+    ports:
+      - "8080"
+    env_file:
+      - .env
+    networks:
+      - sg-services-network
+
+networks:
+  sg-services-network:
+    external: true

@@ -1,0 +1,6 @@
+@ms_user_management.Api_HostAddress = http://localhost:5223
+
+GET {{ms_user_management.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

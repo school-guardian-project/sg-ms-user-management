@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ms_user_management.Api</RootNamespace>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Admin\Application\UseCase\" />
+    <Folder Include="Admin\Domain\" />
+    <Folder Include="Admin\Infrastructure\" />
+    <Folder Include="Driver\Application\" />
+    <Folder Include="Driver\Infrastructure\" />
+    <Folder Include="Family\Application\" />
+    <Folder Include="Family\Infrastructure\" />
+    <Folder Include="Parent\Application\" />
+    <Folder Include="Parent\Domain\" />
+    <Folder Include="Parent\Infrastructure\" />
+    <Folder Include="Student\Application\" />
+    <Folder Include="Student\Domain\" />
+    <Folder Include="Student\Infrastructure\" />
+  </ItemGroup>
+
+</Project>

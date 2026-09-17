@@ -1,0 +1,7 @@
+.env
+
+src/ms-user-management.Api/bin
+src/ms-user-management.Api/obj
+src/ms-user-management.Api/appsettings.*
+
+.idea
