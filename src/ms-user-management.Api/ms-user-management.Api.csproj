@@ -6,10 +6,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ms_user_management.Api</RootNamespace>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.17.8" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,15 +29,23 @@
     <Folder Include="Admin\Domain\" />
     <Folder Include="Admin\Infrastructure\" />
     <Folder Include="Driver\Application\" />
+    <Folder Include="Driver\Domain\Exception\" />
+    <Folder Include="Driver\Domain\Ports\In\" />
+    <Folder Include="Driver\Domain\Ports\Out\" />
     <Folder Include="Driver\Infrastructure\" />
-    <Folder Include="Family\Application\" />
+    <Folder Include="Family\Application\UseCase\" />
+    <Folder Include="Family\Domain\Exception\" />
+    <Folder Include="Family\Domain\Ports\In\" />
+    <Folder Include="Family\Domain\Ports\Out\" />
     <Folder Include="Family\Infrastructure\" />
     <Folder Include="Parent\Application\" />
     <Folder Include="Parent\Domain\" />
     <Folder Include="Parent\Infrastructure\" />
-    <Folder Include="Student\Application\" />
-    <Folder Include="Student\Domain\" />
-    <Folder Include="Student\Infrastructure\" />
+    <Folder Include="Shared\Domain\Port\In\" />
+    <Folder Include="Student\Application\Mapper\" />
+    <Folder Include="Student\Domain\Model\" />
+    <Folder Include="Student\Domain\Ports\Out\" />
+    <Folder Include="SuperAdmin\" />
   </ItemGroup>
 
 </Project>
