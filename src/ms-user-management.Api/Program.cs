@@ -6,6 +6,7 @@ using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Mapper;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
+using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Student.Application.UseCase;
 using Scalar.AspNetCore;
 
@@ -40,6 +41,12 @@ builder.Services.AddScoped<UpdateStudentService>();
 builder.Services.AddScoped<DeleteStudentService>();
 builder.Services.AddScoped<ListStudentService>();
 builder.Services.AddScoped<GetStudentService>();
+
+builder.Services.AddScoped<CreateParentService>();
+builder.Services.AddScoped<UpdateParentService>();
+builder.Services.AddScoped<DeleteParentService>();
+builder.Services.AddScoped<ListParentService>();
+builder.Services.AddScoped<GetParentService>();
 
 builder.Services.AddScoped<SearchPersonService>();
 
