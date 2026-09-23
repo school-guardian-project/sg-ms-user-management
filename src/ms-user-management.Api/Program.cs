@@ -1,13 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using ms_user_management.Api.Shared.Application.Mapper;
-using ms_user_management.Api.Shared.Application.Search;
-using ms_user_management.Api.Shared.Application.Search.Strategy;
-using ms_user_management.Api.Shared.Domain.Port.Out;
-using ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
-using ms_user_management.Api.Shared.Infrastructure.Persistence.Mapper;
-using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
-using ms_user_management.Api.Driver.Application.UseCase;
-using ms_user_management.Api.Student.Application.UseCase;
+using ms_user_management.Api.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,39 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddProfile<PersonProfile>();
-    cfg.AddProfile<PersonPersistenceProfile>();
-});
-
-builder.Services.AddDbContext<UserManagementContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
-
 builder.Services.AddControllers();
 
-builder.Services.AddScoped<IPersonRepository, PersonRepository>();
-builder.Services.AddScoped<IPersonSearchRepository, PersonSearchRepository>();
-
-builder.Services.AddScoped<IPersonSearchStrategy, EmailSearchStrategy>();
-builder.Services.AddScoped<IPersonSearchStrategy, IdentificationSearchStrategy>();
-builder.Services.AddScoped<IPersonSearchStrategy, NameSearchStrategy>();
-
-builder.Services.AddScoped<CreateStudentService>();
-builder.Services.AddScoped<UpdateStudentService>();
-builder.Services.AddScoped<DeleteStudentService>();
-builder.Services.AddScoped<ListStudentService>();
-builder.Services.AddScoped<GetStudentService>();
-
-builder.Services.AddScoped<CreateDriverService>();
-builder.Services.AddScoped<UpdateDriverService>();
-builder.Services.AddScoped<DeleteDriverService>();
-builder.Services.AddScoped<ListDriverService>();
-builder.Services.AddScoped<GetDriverService>();
-
-builder.Services.AddScoped<SearchPersonService>();
+builder.Services.AddUserManagementServices(builder.Configuration);
 
 var app = builder.Build();
 
