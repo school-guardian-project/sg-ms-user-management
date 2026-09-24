@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="Confluent.Kafka" Version="2.15.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
@@ -26,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="Admin\Application\UseCase\" />
-    <Folder Include="Admin\Domain\" />
     <Folder Include="Admin\Infrastructure\" />
     <Folder Include="Driver\Application\" />
     <Folder Include="Driver\Domain\Exception\" />
@@ -39,8 +39,8 @@
     <Folder Include="Family\Domain\Ports\Out\" />
     <Folder Include="Family\Infrastructure\" />
     <Folder Include="Parent\Application\" />
-    <Folder Include="Parent\Domain\" />
     <Folder Include="Parent\Infrastructure\" />
+    <Folder Include="Shared\Domain\Event\" />
     <Folder Include="Shared\Domain\Port\In\" />
     <Folder Include="Student\Application\Mapper\" />
     <Folder Include="Student\Domain\Model\" />
