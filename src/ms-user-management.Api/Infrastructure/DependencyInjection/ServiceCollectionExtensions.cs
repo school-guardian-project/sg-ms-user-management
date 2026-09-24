@@ -1,6 +1,8 @@
+using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using ms_user_management.Api.Admin.Application.UseCase;
 using ms_user_management.Api.Driver.Application.UseCase;
+using ms_user_management.Api.Infrastructure.Messaging.Kafka;
 using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Mapper;
 using ms_user_management.Api.Shared.Application.Search;
@@ -28,6 +30,17 @@ public static class ServiceCollectionExtensions
                 configuration.GetConnectionString("DefaultConnection")
             ));
 
+        services.AddSingleton<IProducer<string, string>>(sp =>
+        {
+            var config = new ProducerConfig
+            {
+                BootstrapServers = configuration["Kafka:BootstrapServers"]
+            };
+            return new ProducerBuilder<string, string>(config).Build();
+        });
+
+        services.AddScoped<IEventPublisher, KafkaEventPublisher>();
+        
         services.AddScoped<IPersonRepository, PersonRepository>();
         services.AddScoped<IPersonSearchRepository, PersonSearchRepository>();
 
