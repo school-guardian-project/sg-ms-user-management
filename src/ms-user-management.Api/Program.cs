@@ -1,3 +1,4 @@
+using ms_user_management.Api.Family.Infrastructure.Grpc;
 using ms_user_management.Api.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
 
@@ -26,5 +27,7 @@ app.MapScalarApiReference();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.MapGrpcService<FamilyGrpcService>();
 
 app.Run();

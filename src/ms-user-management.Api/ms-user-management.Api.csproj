@@ -12,11 +12,16 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="Confluent.Kafka" Version="2.15.1" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.84.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.17.8" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.17.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\family.proto" GrpcServices="Server" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,19 +38,13 @@
     <Folder Include="Driver\Domain\Ports\In\" />
     <Folder Include="Driver\Domain\Ports\Out\" />
     <Folder Include="Driver\Infrastructure\" />
-    <Folder Include="Family\Application\UseCase\" />
     <Folder Include="Family\Domain\Exception\" />
-    <Folder Include="Family\Domain\Ports\In\" />
-    <Folder Include="Family\Domain\Ports\Out\" />
-    <Folder Include="Family\Infrastructure\" />
     <Folder Include="Parent\Application\" />
     <Folder Include="Parent\Infrastructure\" />
-    <Folder Include="Shared\Domain\Event\" />
     <Folder Include="Shared\Domain\Port\In\" />
     <Folder Include="Student\Application\Mapper\" />
     <Folder Include="Student\Domain\Model\" />
     <Folder Include="Student\Domain\Ports\Out\" />
-    <Folder Include="SuperAdmin\" />
   </ItemGroup>
 
 </Project>

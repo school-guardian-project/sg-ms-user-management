@@ -2,6 +2,10 @@ using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using ms_user_management.Api.Admin.Application.UseCase;
 using ms_user_management.Api.Driver.Application.UseCase;
+using ms_user_management.Api.Family.Application.UseCase;
+using ms_user_management.Api.Family.Domain.Ports.In;
+using ms_user_management.Api.Family.Domain.Ports.Out;
+using ms_user_management.Api.Family.Infrastructure.Repository;
 using ms_user_management.Api.Infrastructure.Messaging.Kafka;
 using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Mapper;
@@ -73,6 +77,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DeleteAdminService>();
         services.AddScoped<ListAdminService>();
         services.AddScoped<GetAdminService>();
+
+        services.AddGrpc();
+        services.AddScoped<IRegisterFamilyUseCase, RegisterFamilyService>();
+        services.AddScoped<IFamilyRepository, FamilyRepositoryImpl>();
 
         return services;
     }
