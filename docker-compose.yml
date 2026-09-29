@@ -11,6 +11,17 @@ services:
       - .env
     networks:
       - sg-services-network
+    
+  ms-user-management.tests:
+    container_name: ms-user-management-tests
+    image: mcr.microsoft.com/dotnet/sdk:10.0
+    working_dir: /src
+    volumes:
+      - ./:/src
+    command: dotnet test ./tests/ms-user-management.Tests/ --nologo
+    profiles: [ "tests" ]
+    networks:
+      - sg-services-network
 
 networks:
   sg-services-network:
