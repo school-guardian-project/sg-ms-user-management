@@ -80,6 +80,10 @@ public static class ServiceCollectionExtensions
 
         services.AddGrpc();
         services.AddScoped<IRegisterFamilyUseCase, RegisterFamilyService>();
+        services.AddScoped<IListFamilyUseCase, ListFamilyService>();
+        services.AddScoped<IGetFamilyUseCase, GetFamilyService>();
+        services.AddScoped<IUpdateFamilyUseCase, UpdateFamilyService>();
+        services.AddScoped<IDeleteFamilyUseCase, DeleteFamilyService>();
         services.AddScoped<IFamilyRepository, FamilyRepositoryImpl>();
 
         return services;

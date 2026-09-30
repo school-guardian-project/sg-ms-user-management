@@ -3,7 +3,9 @@
 src/ms-user-management.Api/bin
 src/ms-user-management.Api/obj
 src/ms-user-management.Api/appsettings.*
-tests/ms-user-management.Tests/bin
-tests/ms-user-management.Tests/obj
+tests/**/bin*/
+tests/**/obj*/
 
 .idea
+
+src/ms-user-management.Api/Config

@@ -34,4 +34,56 @@ public class InMemoryFamilyRepository : IFamilyRepository
             .ToList();
         return Task.FromResult(found);
     }
+
+    public Task<IReadOnlyList<(FamilyModel Family, Guid? ParentProfileId)>> GetAllAsync(
+        CancellationToken ct = default)
+    {
+        IReadOnlyList<(FamilyModel Family, Guid? ParentProfileId)> rows = Families
+            .Select(f => (f, Members
+                .Where(m => m.FamilyId == f.Id && m.RelationType == RelationType.Parent)
+                .Select(m => (Guid?)m.ProfileId)
+                .FirstOrDefault()))
+            .ToList();
+        return Task.FromResult(rows);
+    }
+
+    public Task<FamilyModel?> GetByIdAsync(Guid familyId, CancellationToken ct = default)
+        => Task.FromResult(Families.FirstOrDefault(f => f.Id == familyId));
+
+    public Task<IReadOnlyList<(Guid ProfileId, RelationType RelationType)>> GetMembersAsync(
+        Guid familyId, CancellationToken ct = default)
+    {
+        IReadOnlyList<(Guid ProfileId, RelationType RelationType)> members = Members
+            .Where(m => m.FamilyId == familyId)
+            .Select(m => (m.ProfileId, m.RelationType))
+            .ToList();
+        return Task.FromResult(members);
+    }
+
+    public Task UpdateAsync(Guid familyId, string familyName, string observations,
+        IReadOnlyList<(Guid ProfileId, RelationType RelationType)> members,
+        CancellationToken ct = default)
+    {
+        var family = Families.FirstOrDefault(f => f.Id == familyId)
+            ?? throw new InvalidOperationException($"Family not found: {familyId}");
+
+        family.Name = familyName;
+        family.Observations = observations;
+
+        Members.RemoveAll(m => m.FamilyId == familyId);
+        Members.AddRange(members.Select(m => (Guid.NewGuid(), familyId, m.ProfileId, m.RelationType)));
+
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(Guid familyId, CancellationToken ct = default)
+    {
+        var family = Families.FirstOrDefault(f => f.Id == familyId)
+            ?? throw new InvalidOperationException($"Family not found: {familyId}");
+
+        Families.Remove(family);
+        Members.RemoveAll(m => m.FamilyId == familyId);
+
+        return Task.CompletedTask;
+    }
 }
