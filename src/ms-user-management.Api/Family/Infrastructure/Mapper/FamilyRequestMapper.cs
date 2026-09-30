@@ -1,6 +1,7 @@
 using ms_user_management.Api.Family.Domain.Model;
+using ms_user_management.Api.Family.Infrastructure.Controller;
 
-namespace ms_user_management.Api.Family.Infrastructure.Controller.Mapper;
+namespace ms_user_management.Api.Family.Infrastructure.Mapper;
 
 public static class FamilyRequestMapper
 {

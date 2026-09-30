@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
-using ms_user_management.Api.Family.Infrastructure.Controller.Mapper;
+using ms_user_management.Api.Family.Infrastructure.Mapper;
 
 namespace ms_user_management.Api.Family.Infrastructure.Controller;
 
@@ -13,18 +14,21 @@ public class FamilyController : ControllerBase
     private readonly IGetFamilyUseCase _getUseCase;
     private readonly IUpdateFamilyUseCase _updateUseCase;
     private readonly IDeleteFamilyUseCase _deleteUseCase;
+    private readonly GetFamilyMembersByStudentService _membersByStudentService;
 
     public FamilyController(IRegisterFamilyUseCase registerUseCase,
         IListFamilyUseCase listUseCase,
         IGetFamilyUseCase getUseCase,
         IUpdateFamilyUseCase updateUseCase,
-        IDeleteFamilyUseCase deleteUseCase)
+        IDeleteFamilyUseCase deleteUseCase,
+        GetFamilyMembersByStudentService membersByStudentService)
     {
         _registerUseCase = registerUseCase;
         _listUseCase = listUseCase;
         _getUseCase = getUseCase;
         _updateUseCase = updateUseCase;
         _deleteUseCase = deleteUseCase;
+        _membersByStudentService = membersByStudentService;
     }
 
     [HttpPost]
@@ -61,6 +65,14 @@ public class FamilyController : ControllerBase
         var result = await _getUseCase.ExecuteAsync(id, ct);
 
         return Ok(result);
+    }
+
+    [HttpGet("student/{studentProfileId:guid}/members")]
+    public async Task<IActionResult> GetMembersByStudent(Guid studentProfileId, CancellationToken ct)
+    {
+        var parentProfileIds = await _membersByStudentService.ExecuteAsync(studentProfileId, ct);
+
+        return Ok(parentProfileIds.Select(id => new { profileId = id }));
     }
 
     [HttpPut("{id:guid}")]
