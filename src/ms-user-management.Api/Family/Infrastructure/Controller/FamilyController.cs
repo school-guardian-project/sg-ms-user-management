@@ -8,14 +8,29 @@ namespace ms_user_management.Api.Family.Infrastructure.Controller;
 [Route("api/families")]
 public class FamilyController : ControllerBase
 {
-    private readonly IRegisterFamilyUseCase _useCase;
+    private readonly IRegisterFamilyUseCase _registerUseCase;
+    private readonly IListFamilyUseCase _listUseCase;
+    private readonly IGetFamilyUseCase _getUseCase;
+    private readonly IUpdateFamilyUseCase _updateUseCase;
+    private readonly IDeleteFamilyUseCase _deleteUseCase;
 
-    public FamilyController(IRegisterFamilyUseCase useCase) => _useCase = useCase;
+    public FamilyController(IRegisterFamilyUseCase registerUseCase,
+        IListFamilyUseCase listUseCase,
+        IGetFamilyUseCase getUseCase,
+        IUpdateFamilyUseCase updateUseCase,
+        IDeleteFamilyUseCase deleteUseCase)
+    {
+        _registerUseCase = registerUseCase;
+        _listUseCase = listUseCase;
+        _getUseCase = getUseCase;
+        _updateUseCase = updateUseCase;
+        _deleteUseCase = deleteUseCase;
+    }
 
     [HttpPost]
     public async Task<IActionResult> Register([FromBody] RegisterFamilyRequest request, CancellationToken ct)
     {
-        var (familyId, members) = await _useCase.ExecuteAsync(
+        var (familyId, members) = await _registerUseCase.ExecuteAsync(
             request.FamilyName,
             request.Observations,
             FamilyRequestMapper.ToUseCaseInput(request.Members),
@@ -30,6 +45,43 @@ public class FamilyController : ControllerBase
                 profileId = m.ProfileId
             })
         });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> List(CancellationToken ct)
+    {
+        var result = await _listUseCase.ExecuteAsync(ct);
+
+        return Ok(result);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
+    {
+        var result = await _getUseCase.ExecuteAsync(id, ct);
+
+        return Ok(result);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] RegisterFamilyRequest request, CancellationToken ct)
+    {
+        await _updateUseCase.ExecuteAsync(
+            id,
+            request.FamilyName,
+            request.Observations,
+            FamilyRequestMapper.ToUseCaseInput(request.Members),
+            ct);
+
+        return Ok();
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        await _deleteUseCase.ExecuteAsync(id, ct);
+
+        return NoContent();
     }
 
     public class RegisterFamilyRequest

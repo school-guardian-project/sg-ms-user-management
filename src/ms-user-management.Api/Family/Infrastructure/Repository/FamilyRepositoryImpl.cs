@@ -63,4 +63,103 @@ public class FamilyRepositoryImpl : IFamilyRepository
             .Distinct()
             .ToListAsync(ct);
     }
+
+    public async Task<IReadOnlyList<(FamilyModel Family, Guid? ParentProfileId)>> GetAllAsync(
+        CancellationToken ct = default)
+    {
+        var families = await _userManagementContext.Families
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        var familyIds = families.Select(f => f.Id).ToList();
+        var parents = await _userManagementContext.FamilyMembers
+            .AsNoTracking()
+            .Where(fm => familyIds.Contains(fm.FamilyId) && fm.RelationType == RelationType.Parent)
+            .Select(fm => new { fm.FamilyId, fm.ProfileId })
+            .ToListAsync(ct);
+
+        var parentByFamily = parents
+            .GroupBy(p => p.FamilyId)
+            .ToDictionary(g => g.Key, g => (Guid?)g.First().ProfileId);
+
+        return families
+            .Select(f => (ToDomain(f), parentByFamily.GetValueOrDefault(f.Id)))
+            .ToList();
+    }
+
+    public async Task<FamilyModel?> GetByIdAsync(Guid familyId, CancellationToken ct = default)
+    {
+        var family = await _userManagementContext.Families
+            .AsNoTracking()
+            .FirstOrDefaultAsync(f => f.Id == familyId, ct);
+
+        return family is null ? null : ToDomain(family);
+    }
+
+    public async Task<IReadOnlyList<(Guid ProfileId, RelationType RelationType)>> GetMembersAsync(
+        Guid familyId, CancellationToken ct = default)
+    {
+        var members = await _userManagementContext.FamilyMembers
+            .AsNoTracking()
+            .Where(fm => fm.FamilyId == familyId)
+            .ToListAsync(ct);
+
+        return members.Select(m => (m.ProfileId, m.RelationType)).ToList();
+    }
+
+    public async Task UpdateAsync(Guid familyId, string familyName, string observations,
+        IReadOnlyList<(Guid ProfileId, RelationType RelationType)> members,
+        CancellationToken ct = default)
+    {
+        var strategy = _userManagementContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var tx = await _userManagementContext.Database.BeginTransactionAsync(ct);
+
+            var family = await _userManagementContext.Families
+                .FirstOrDefaultAsync(f => f.Id == familyId, ct);
+            if (family is null)
+                throw new InvalidOperationException($"Family not found: {familyId}");
+
+            family.Name = familyName;
+            family.Observations = observations;
+
+            var currentMembers = await _userManagementContext.FamilyMembers
+                .Where(fm => fm.FamilyId == familyId)
+                .ToListAsync(ct);
+            _userManagementContext.FamilyMembers.RemoveRange(currentMembers);
+
+            _userManagementContext.FamilyMembers.AddRange(
+                members.Select(m => new FamilyMemberEntity
+                {
+                    Id = Guid.NewGuid(),
+                    FamilyId = familyId,
+                    ProfileId = m.ProfileId,
+                    RelationType = m.RelationType,
+                    Status = Status.Active
+                }));
+
+            await _userManagementContext.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
+        });
+    }
+
+    public async Task DeleteAsync(Guid familyId, CancellationToken ct = default)
+    {
+        var family = await _userManagementContext.Families
+            .FirstOrDefaultAsync(f => f.Id == familyId, ct);
+        if (family is null)
+            throw new InvalidOperationException($"Family not found: {familyId}");
+
+        _userManagementContext.Families.Remove(family);
+        await _userManagementContext.SaveChangesAsync(ct);
+    }
+
+    private static FamilyModel ToDomain(FamilyEntity family) => new()
+    {
+        Id = family.Id,
+        Name = family.Name,
+        Observations = family.Observations,
+        Status = family.Status
+    };
 }
