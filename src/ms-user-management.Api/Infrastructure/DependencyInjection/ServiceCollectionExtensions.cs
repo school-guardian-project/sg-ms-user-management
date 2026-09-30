@@ -84,6 +84,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGetFamilyUseCase, GetFamilyService>();
         services.AddScoped<IUpdateFamilyUseCase, UpdateFamilyService>();
         services.AddScoped<IDeleteFamilyUseCase, DeleteFamilyService>();
+        services.AddScoped<GetFamilyMembersByStudentService>();
         services.AddScoped<IFamilyRepository, FamilyRepositoryImpl>();
 
         return services;
