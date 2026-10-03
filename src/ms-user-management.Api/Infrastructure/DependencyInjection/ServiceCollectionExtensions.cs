@@ -2,6 +2,8 @@ using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using ms_user_management.Api.Admin.Application.UseCase;
 using ms_user_management.Api.Driver.Application.UseCase;
+using ms_user_management.Api.Driver.Domain.Ports.Out;
+using ms_user_management.Api.Driver.Infrastructure.Repository;
 using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Domain.Ports.Out;
@@ -65,6 +67,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DeleteDriverService>();
         services.AddScoped<ListDriverService>();
         services.AddScoped<GetDriverService>();
+
+        services.AddScoped<IDriverLicenseRepository, DriverLicenseRepositoryImpl>();
+        services.AddScoped<IPersonLicenseReader, PersonLicenseReader>();
+        services.AddScoped<CreateDriverLicenseService>();
+        services.AddScoped<GetDriverLicenseService>();
+        services.AddScoped<ListDriverLicenseService>();
+        services.AddScoped<UpdateDriverLicenseService>();
+        services.AddScoped<DeleteDriverLicenseService>();
 
         services.AddScoped<CreateParentService>();
         services.AddScoped<UpdateParentService>();
