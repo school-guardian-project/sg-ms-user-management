@@ -15,13 +15,15 @@ public class FamilyController : ControllerBase
     private readonly IUpdateFamilyUseCase _updateUseCase;
     private readonly IDeleteFamilyUseCase _deleteUseCase;
     private readonly GetFamilyMembersByStudentService _membersByStudentService;
+    private readonly SearchFamilyService _searchFamilyService;
 
     public FamilyController(IRegisterFamilyUseCase registerUseCase,
         IListFamilyUseCase listUseCase,
         IGetFamilyUseCase getUseCase,
         IUpdateFamilyUseCase updateUseCase,
         IDeleteFamilyUseCase deleteUseCase,
-        GetFamilyMembersByStudentService membersByStudentService)
+        GetFamilyMembersByStudentService membersByStudentService,
+        SearchFamilyService searchFamilyService)
     {
         _registerUseCase = registerUseCase;
         _listUseCase = listUseCase;
@@ -29,6 +31,7 @@ public class FamilyController : ControllerBase
         _updateUseCase = updateUseCase;
         _deleteUseCase = deleteUseCase;
         _membersByStudentService = membersByStudentService;
+        _searchFamilyService = searchFamilyService;
     }
 
     [HttpPost]
@@ -55,6 +58,14 @@ public class FamilyController : ControllerBase
     public async Task<IActionResult> List(CancellationToken ct)
     {
         var result = await _listUseCase.ExecuteAsync(ct);
+
+        return Ok(result);
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string search, CancellationToken ct)
+    {
+        var result = await _searchFamilyService.SearchAsync(search, ct);
 
         return Ok(result);
     }

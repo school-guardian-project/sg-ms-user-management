@@ -15,6 +15,9 @@ public interface IFamilyRepository
     Task<IReadOnlyList<(FamilyModel Family, Guid? ParentProfileId)>> GetAllAsync(
         CancellationToken ct = default);
 
+    Task<IReadOnlyList<FamilySearchRow>> GetAllWithGuardianAsync(
+        CancellationToken ct = default);
+
     Task<FamilyModel?> GetByIdAsync(Guid familyId, CancellationToken ct = default);
 
     Task<IReadOnlyList<(Guid ProfileId, RelationType RelationType)>> GetMembersAsync(

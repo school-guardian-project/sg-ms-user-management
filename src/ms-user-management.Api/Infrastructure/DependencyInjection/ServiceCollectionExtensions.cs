@@ -4,6 +4,7 @@ using ms_user_management.Api.Admin.Application.UseCase;
 using ms_user_management.Api.Driver.Application.UseCase;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 using ms_user_management.Api.Driver.Infrastructure.Repository;
+using ms_user_management.Api.Family.Application.Search.Strategy;
 using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Domain.Ports.Out;
@@ -18,6 +19,7 @@ using ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Mapper;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
 using ms_user_management.Api.Student.Application.UseCase;
+using FamilyNameSearchStrategy = ms_user_management.Api.Family.Application.Search.Strategy.NameSearchStrategy;
 
 namespace ms_user_management.Api.Infrastructure.DependencyInjection;
 
@@ -96,6 +98,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDeleteFamilyUseCase, DeleteFamilyService>();
         services.AddScoped<GetFamilyMembersByStudentService>();
         services.AddScoped<IFamilyRepository, FamilyRepositoryImpl>();
+
+        services.AddScoped<IFamilySearchStrategy, PhoneSearchStrategy>();
+        services.AddScoped<IFamilySearchStrategy, FamilyNameSearchStrategy>();
+        services.AddScoped<SearchFamilyService>();
 
         return services;
     }
