@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <!-- Artefactos de build respaldados con sufijo *.root-backup no deben compilarse -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/*.root-backup/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
