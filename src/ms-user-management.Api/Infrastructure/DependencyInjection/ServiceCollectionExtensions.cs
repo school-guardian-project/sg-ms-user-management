@@ -20,6 +20,7 @@ using ms_user_management.Api.Shared.Infrastructure.Persistence.Mapper;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
 using ms_user_management.Api.Student.Application.UseCase;
 using FamilyNameSearchStrategy = ms_user_management.Api.Family.Application.Search.Strategy.NameSearchStrategy;
+using NameSearchStrategy = ms_user_management.Api.Shared.Application.Search.Strategy.NameSearchStrategy;
 
 namespace ms_user_management.Api.Infrastructure.DependencyInjection;
 
@@ -51,6 +52,7 @@ public static class ServiceCollectionExtensions
         
         services.AddScoped<IPersonRepository, PersonRepository>();
         services.AddScoped<IPersonSearchRepository, PersonSearchRepository>();
+        services.AddScoped<IPersonProfileReader, PersonProfileReader>();
 
         services.AddScoped<IPersonSearchStrategy, EmailSearchStrategy>();
         services.AddScoped<IPersonSearchStrategy, IdentificationSearchStrategy>();

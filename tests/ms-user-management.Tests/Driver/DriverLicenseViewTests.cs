@@ -55,7 +55,7 @@ public class DriverLicenseViewTests
         var reader = new InMemoryPersonLicenseReader();
         reader.LicensesByPerson[withLicense] = LicenseFor(withLicense);
 
-        var service = new ListDriverService(personRepo, reader, CreateMapper());
+        var service = new ListDriverService(personRepo, reader, new InMemoryPersonProfileReader(), CreateMapper());
 
         var result = (await service.ExecuteAsync()).ToList();
 

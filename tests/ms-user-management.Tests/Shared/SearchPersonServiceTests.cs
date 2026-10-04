@@ -43,6 +43,7 @@ public class SearchPersonServiceTests
         var service = new SearchPersonService(
             new IPersonSearchStrategy[] { new NameSearchStrategy(new FakePersonSearchRepository()) },
             new InMemoryPersonLicenseReader(),
+            new InMemoryPersonProfileReader(),
             CreateMapper());
 
         var result = await service.SearchAsync("   ");
@@ -69,6 +70,7 @@ public class SearchPersonServiceTests
         var service = new SearchPersonService(
             new IPersonSearchStrategy[] { new NameSearchStrategy(repo) },
             reader,
+            new InMemoryPersonProfileReader(),
             CreateMapper());
 
         var result = (await service.SearchAsync("ana")).ToList();
@@ -77,6 +79,29 @@ public class SearchPersonServiceTests
         Assert.Equal("ABC12345", single.LicenseNumber);
         Assert.Equal(new DateOnly(2030, 12, 31), single.LicenseExpirationDate);
         Assert.Equal("ana@mail.com", single.Email);
+    }
+
+    [Fact]
+    public async Task Search_RellenaProfileId()
+    {
+        var personId = Guid.NewGuid();
+        var profileId = Guid.NewGuid();
+        var repo = new FakePersonSearchRepository();
+        repo.People.Add(Driver(personId, "Ana", "ana@mail.com"));
+
+        var profileReader = new InMemoryPersonProfileReader();
+        profileReader.ProfileByPerson[personId] = profileId;
+
+        var service = new SearchPersonService(
+            new IPersonSearchStrategy[] { new NameSearchStrategy(repo) },
+            new InMemoryPersonLicenseReader(),
+            profileReader,
+            CreateMapper());
+
+        var result = (await service.SearchAsync("ana")).ToList();
+
+        var single = Assert.Single(result);
+        Assert.Equal(profileId, single.ProfileId);
     }
 
     private class FakePersonSearchRepository : IPersonSearchRepository
