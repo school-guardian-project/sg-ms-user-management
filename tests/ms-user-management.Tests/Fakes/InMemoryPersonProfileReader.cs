@@ -1,0 +1,26 @@
+using ms_user_management.Api.Shared.Domain.Port.Out;
+
+namespace ms_user_management.Tests.Fakes;
+
+public class InMemoryPersonProfileReader : IPersonProfileReader
+{
+    public readonly Dictionary<Guid, Guid> ProfileByPerson = new();
+    public readonly Dictionary<Guid, string> NameByProfile = new();
+
+    public Task<IReadOnlyDictionary<Guid, Guid>> GetProfileIdsByPersonIdsAsync(
+        IReadOnlyCollection<Guid> personIds,
+        CancellationToken ct = default)
+    {
+        IReadOnlyDictionary<Guid, Guid> result = ProfileByPerson
+            .Where(kv => personIds.Contains(kv.Key))
+            .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+        return Task.FromResult(result);
+    }
+
+    public Task<bool> ProfileExistsAsync(Guid profileId, CancellationToken ct = default)
+        => Task.FromResult(ProfileByPerson.ContainsValue(profileId) || NameByProfile.ContainsKey(profileId));
+
+    public Task<string?> GetPersonNameAsync(Guid profileId, CancellationToken ct = default)
+        => Task.FromResult(NameByProfile.TryGetValue(profileId, out var name) ? name : null);
+}

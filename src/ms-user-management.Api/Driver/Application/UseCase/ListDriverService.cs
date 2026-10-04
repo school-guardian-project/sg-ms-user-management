@@ -10,12 +10,18 @@ public class ListDriverService : IListDriverUseCase
 {
     private readonly IPersonRepository _personRepository;
     private readonly IPersonLicenseReader _licenseReader;
+    private readonly IPersonProfileReader _profileReader;
     private readonly IMapper _mapper;
 
-    public ListDriverService(IPersonRepository personRepository, IPersonLicenseReader licenseReader, IMapper mapper)
+    public ListDriverService(
+        IPersonRepository personRepository,
+        IPersonLicenseReader licenseReader,
+        IPersonProfileReader profileReader,
+        IMapper mapper)
     {
         _personRepository = personRepository;
         _licenseReader = licenseReader;
+        _profileReader = profileReader;
         _mapper = mapper;
     }
 
@@ -32,6 +38,13 @@ public class ListDriverService : IListDriverUseCase
                 dto.LicenseNumber = license.LicenseNumber;
                 dto.LicenseExpirationDate = license.LicenseExpirationDate;
             }
+        }
+
+        var profiles = await _profileReader.GetProfileIdsByPersonIdsAsync(persons.Select(p => p.Id).ToList());
+        foreach (var dto in result)
+        {
+            if (profiles.TryGetValue(dto.Id, out var profileId))
+                dto.ProfileId = profileId;
         }
 
         return result;

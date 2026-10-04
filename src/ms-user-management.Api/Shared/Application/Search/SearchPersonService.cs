@@ -10,12 +10,18 @@ public class SearchPersonService
 {
     private readonly IEnumerable<IPersonSearchStrategy> _strategies;
     private readonly IPersonLicenseReader _licenseReader;
+    private readonly IPersonProfileReader _profileReader;
     private readonly IMapper _mapper;
 
-    public SearchPersonService(IEnumerable<IPersonSearchStrategy> strategies, IPersonLicenseReader licenseReader, IMapper mapper)
+    public SearchPersonService(
+        IEnumerable<IPersonSearchStrategy> strategies,
+        IPersonLicenseReader licenseReader,
+        IPersonProfileReader profileReader,
+        IMapper mapper)
     {
         _strategies = strategies;
         _licenseReader = licenseReader;
+        _profileReader = profileReader;
         _mapper = mapper;
     }
 
@@ -28,7 +34,7 @@ public class SearchPersonService
         var strategy = _strategies.FirstOrDefault(x => x.CanHandle(search));
 
         if (strategy == null) return [];
-        
+
         var persons = (await strategy.SearchAsync(search)).ToList();
         var result = _mapper.Map<List<PersonListDto>>(persons);
 
@@ -40,6 +46,13 @@ public class SearchPersonService
                 dto.LicenseNumber = license.LicenseNumber;
                 dto.LicenseExpirationDate = license.LicenseExpirationDate;
             }
+        }
+
+        var profiles = await _profileReader.GetProfileIdsByPersonIdsAsync(persons.Select(p => p.Id).ToList());
+        foreach (var dto in result)
+        {
+            if (profiles.TryGetValue(dto.Id, out var profileId))
+                dto.ProfileId = profileId;
         }
 
         return result;
