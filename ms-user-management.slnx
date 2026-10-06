@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ms-user-management.Api/ms-user-management.Api.csproj" />
+  </Folder>
+</Solution>
