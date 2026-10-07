@@ -6,5 +6,5 @@ public class PersonListDto
     public String Name { get; set; }
     public String LastName { get; set; }
     public String IdentificationNumber { get; set; }
-    public int Phone { get; set; }
+    public long Phone { get; set; }
 }
