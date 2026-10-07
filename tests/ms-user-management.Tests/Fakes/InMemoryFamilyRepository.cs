@@ -8,6 +8,7 @@ public class InMemoryFamilyRepository : IFamilyRepository
 {
     public readonly List<FamilyModel> Families = new();
     public readonly List<(Guid MemberId, Guid FamilyId, Guid ProfileId, RelationType RelationType)> Members = new();
+    public readonly Dictionary<Guid, (string? Name, string? LastName, int Phone)> GuardiansByProfile = new();
 
     public Task<IReadOnlyList<Guid>> SaveAsync(FamilyModel family,
         IReadOnlyList<(Guid ProfileId, RelationType RelationType)> members,
@@ -49,6 +50,33 @@ public class InMemoryFamilyRepository : IFamilyRepository
 
     public Task<FamilyModel?> GetByIdAsync(Guid familyId, CancellationToken ct = default)
         => Task.FromResult(Families.FirstOrDefault(f => f.Id == familyId));
+
+    public Task<IReadOnlyList<FamilySearchRow>> GetAllWithGuardianAsync(
+        CancellationToken ct = default)
+    {
+        IReadOnlyList<FamilySearchRow> rows = Families.Select(f =>
+        {
+            var parentId = Members
+                .Where(m => m.FamilyId == f.Id && m.RelationType == RelationType.Parent)
+                .Select(m => (Guid?)m.ProfileId)
+                .FirstOrDefault();
+
+            GuardiansByProfile.TryGetValue(parentId ?? Guid.Empty, out var guardian);
+
+            return new FamilySearchRow
+            {
+                FamilyId = f.Id,
+                FamilyName = f.Name,
+                Observations = f.Observations,
+                ParentProfileId = parentId,
+                GuardianName = guardian.Name ?? string.Empty,
+                GuardianLastName = guardian.LastName ?? string.Empty,
+                GuardianPhone = guardian.Phone
+            };
+        }).ToList();
+
+        return Task.FromResult(rows);
+    }
 
     public Task<IReadOnlyList<(Guid ProfileId, RelationType RelationType)>> GetMembersAsync(
         Guid familyId, CancellationToken ct = default)

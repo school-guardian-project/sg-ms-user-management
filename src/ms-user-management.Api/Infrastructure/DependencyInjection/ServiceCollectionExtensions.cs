@@ -2,6 +2,9 @@ using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using ms_user_management.Api.Admin.Application.UseCase;
 using ms_user_management.Api.Driver.Application.UseCase;
+using ms_user_management.Api.Driver.Domain.Ports.Out;
+using ms_user_management.Api.Driver.Infrastructure.Repository;
+using ms_user_management.Api.Family.Application.Search.Strategy;
 using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Domain.Ports.Out;
@@ -16,6 +19,8 @@ using ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Mapper;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
 using ms_user_management.Api.Student.Application.UseCase;
+using FamilyNameSearchStrategy = ms_user_management.Api.Family.Application.Search.Strategy.NameSearchStrategy;
+using NameSearchStrategy = ms_user_management.Api.Shared.Application.Search.Strategy.NameSearchStrategy;
 
 namespace ms_user_management.Api.Infrastructure.DependencyInjection;
 
@@ -47,6 +52,7 @@ public static class ServiceCollectionExtensions
         
         services.AddScoped<IPersonRepository, PersonRepository>();
         services.AddScoped<IPersonSearchRepository, PersonSearchRepository>();
+        services.AddScoped<IPersonProfileReader, PersonProfileReader>();
 
         services.AddScoped<IPersonSearchStrategy, EmailSearchStrategy>();
         services.AddScoped<IPersonSearchStrategy, IdentificationSearchStrategy>();
@@ -65,6 +71,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DeleteDriverService>();
         services.AddScoped<ListDriverService>();
         services.AddScoped<GetDriverService>();
+
+        services.AddScoped<IDriverLicenseRepository, DriverLicenseRepositoryImpl>();
+        services.AddScoped<IPersonLicenseReader, PersonLicenseReader>();
+        services.AddScoped<CreateDriverLicenseService>();
+        services.AddScoped<GetDriverLicenseService>();
+        services.AddScoped<ListDriverLicenseService>();
+        services.AddScoped<UpdateDriverLicenseService>();
+        services.AddScoped<DeleteDriverLicenseService>();
 
         services.AddScoped<CreateParentService>();
         services.AddScoped<UpdateParentService>();
@@ -86,6 +100,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDeleteFamilyUseCase, DeleteFamilyService>();
         services.AddScoped<GetFamilyMembersByStudentService>();
         services.AddScoped<IFamilyRepository, FamilyRepositoryImpl>();
+
+        services.AddScoped<IFamilySearchStrategy, PhoneSearchStrategy>();
+        services.AddScoped<IFamilySearchStrategy, FamilyNameSearchStrategy>();
+        services.AddScoped<SearchFamilyService>();
 
         return services;
     }

@@ -1,6 +1,7 @@
 using AutoMapper;
 using ms_user_management.Api.Admin.Domain.Ports.In;
 using ms_user_management.Api.Shared.Application.Dto;
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 
 namespace ms_user_management.Api.Admin.Application.UseCase;
@@ -8,17 +9,24 @@ namespace ms_user_management.Api.Admin.Application.UseCase;
 public class ListAdminService : IListAdminUseCase
 {
     private readonly IPersonRepository _personRepository;
+    private readonly IPersonProfileReader _profileReader;
     private readonly IMapper _mapper;
 
-    public ListAdminService(IPersonRepository personRepository, IMapper mapper)
+    public ListAdminService(
+        IPersonRepository personRepository,
+        IPersonProfileReader profileReader,
+        IMapper mapper)
     {
         _personRepository = personRepository;
+        _profileReader = profileReader;
         _mapper = mapper;
     }
 
     public async Task<IEnumerable<PersonListDto>> ExecuteAsync()
     {
-        var persons = await _personRepository.GetAllAsync();
+        var admins = await _profileReader.GetPersonIdsByRoleAsync(RoleId.Admin);
+        var persons = (await _personRepository.GetAllAsync())
+            .Where(p => admins.Contains(p.Id));
 
         return _mapper.Map<IEnumerable<PersonListDto>>(persons);
     }
