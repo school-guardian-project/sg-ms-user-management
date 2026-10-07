@@ -10,6 +10,7 @@ using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Domain.Ports.Out;
 using ms_user_management.Api.Family.Infrastructure.Repository;
 using ms_user_management.Api.Infrastructure.Messaging.Kafka;
+using ms_user_management.Api.Infrastructure.Grpc;
 using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Mapper;
 using ms_user_management.Api.Shared.Application.Search;
@@ -48,6 +49,7 @@ public static class ServiceCollectionExtensions
             return new ProducerBuilder<string, string>(config).Build();
         });
 
+        services.AddScoped<ISchoolDirectory, SchoolManagementGrpcClient>();
         services.AddScoped<IEventPublisher, KafkaEventPublisher>();
         
         services.AddScoped<IPersonRepository, PersonRepository>();

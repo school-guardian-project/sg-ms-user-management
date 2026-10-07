@@ -1,9 +1,7 @@
+using ms_user_management.Api.Shared.Domain.Event;
+
 namespace ms_user_management.Api.Admin.Domain.Event;
 
-public class AdminCreatedEvent
+public class AdminCreatedEvent : PersonCreatedEventBase
 {
-    public Guid EventId { get; set; }
-    public Guid PersonId { get; set; }
-    public string Email { get; set; }
-    public string IdentificationNumber { get; set; }
 }
