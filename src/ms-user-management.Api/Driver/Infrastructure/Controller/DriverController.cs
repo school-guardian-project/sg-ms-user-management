@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Driver.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
+using ms_user_management.Api.Shared.Domain.Model;
 
 namespace ms_user_management.Api.Driver.Infrastructure.Controller;
 
@@ -68,7 +69,7 @@ public class DriverController : ControllerBase
     [HttpGet("search")]
     public async Task<IActionResult> Search([FromQuery] string search)
     {
-        var result = await _searchPersonService.SearchAsync(search);
+        var result = await _searchPersonService.SearchAsync(search, RoleId.Driver);
 
         return Ok(result);
     }

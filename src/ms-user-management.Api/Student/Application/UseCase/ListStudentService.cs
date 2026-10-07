@@ -1,5 +1,6 @@
 using AutoMapper;
 using ms_user_management.Api.Shared.Application.Dto;
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Api.Student.Domain.Ports.In;
 
@@ -20,7 +21,10 @@ public class ListStudentService : IListStudentUseCase
 
     public async Task<IEnumerable<PersonListDto>> ExecuteAsync()
     {
-        var persons = (await _personRepository.GetAllAsync()).ToList();
+        var students = await _profileReader.GetPersonIdsByRoleAsync(RoleId.Student);
+        var persons = (await _personRepository.GetAllAsync())
+            .Where(p => students.Contains(p.Id))
+            .ToList();
         var result = _mapper.Map<List<PersonListDto>>(persons);
 
         var profiles = await _profileReader.GetProfileIdsByPersonIdsAsync(persons.Select(p => p.Id).ToList());

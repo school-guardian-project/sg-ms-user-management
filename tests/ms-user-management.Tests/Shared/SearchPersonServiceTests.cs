@@ -104,6 +104,31 @@ public class SearchPersonServiceTests
         Assert.Equal(profileId, single.ProfileId);
     }
 
+    [Fact]
+    public async Task Search_ConRol_NoDevuelvePersonasDeOtroRol()
+    {
+        var student = Guid.NewGuid();
+        var parent = Guid.NewGuid();
+        var repo = new FakePersonSearchRepository();
+        repo.People.Add(Driver(student, "Ana", "ana@mail.com"));
+        repo.People.Add(Driver(parent, "Ana", "otra@mail.com"));
+
+        var profileReader = new InMemoryPersonProfileReader();
+        profileReader.RoleByPerson[student] = RoleId.Student;
+        profileReader.RoleByPerson[parent] = RoleId.Parent;
+
+        var service = new SearchPersonService(
+            new IPersonSearchStrategy[] { new NameSearchStrategy(repo) },
+            new InMemoryPersonLicenseReader(),
+            profileReader,
+            CreateMapper());
+
+        // Sin rol "ana" devuelve a las dos; con rol solo la del rol pedido.
+        var result = (await service.SearchAsync("ana", RoleId.Student)).ToList();
+
+        Assert.Equal(student, Assert.Single(result).Id);
+    }
+
     private class FakePersonSearchRepository : IPersonSearchRepository
     {
         public List<Person> People { get; } = new();

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Student.Application.UseCase;
 
 namespace ms_user_management.Api.Student.Infrastructure.Controller;
@@ -68,7 +69,7 @@ public class StudentController : ControllerBase
     [HttpGet("search")]
     public async Task<IActionResult> Search([FromQuery] string search)
     {
-        var result = await _searchPersonService.SearchAsync(search);
+        var result = await _searchPersonService.SearchAsync(search, RoleId.Student);
 
         return Ok(result);
     }

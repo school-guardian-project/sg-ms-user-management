@@ -1,3 +1,4 @@
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 
 namespace ms_user_management.Tests.Fakes;
@@ -5,6 +6,7 @@ namespace ms_user_management.Tests.Fakes;
 public class InMemoryPersonProfileReader : IPersonProfileReader
 {
     public readonly Dictionary<Guid, Guid> ProfileByPerson = new();
+    public readonly Dictionary<Guid, RoleId> RoleByPerson = new();
     public readonly Dictionary<Guid, string> NameByProfile = new();
 
     public Task<IReadOnlyDictionary<Guid, Guid>> GetProfileIdsByPersonIdsAsync(
@@ -14,6 +16,18 @@ public class InMemoryPersonProfileReader : IPersonProfileReader
         IReadOnlyDictionary<Guid, Guid> result = ProfileByPerson
             .Where(kv => personIds.Contains(kv.Key))
             .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+        return Task.FromResult(result);
+    }
+
+    public Task<IReadOnlySet<Guid>> GetPersonIdsByRoleAsync(
+        RoleId roleId,
+        CancellationToken ct = default)
+    {
+        IReadOnlySet<Guid> result = RoleByPerson
+            .Where(kv => kv.Value == roleId)
+            .Select(kv => kv.Key)
+            .ToHashSet();
 
         return Task.FromResult(result);
     }

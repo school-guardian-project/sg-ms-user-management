@@ -1,6 +1,7 @@
 using AutoMapper;
 using ms_user_management.Api.Parent.Domain.Ports.In;
 using ms_user_management.Api.Shared.Application.Dto;
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 
 namespace ms_user_management.Api.Parent.Application.UseCase;
@@ -20,7 +21,10 @@ public class ListParentService : IListParentUseCase
 
     public async Task<IEnumerable<PersonListDto>> ExecuteAsync()
     {
-        var persons = (await _personRepository.GetAllAsync()).ToList();
+        var parents = await _profileReader.GetPersonIdsByRoleAsync(RoleId.Parent);
+        var persons = (await _personRepository.GetAllAsync())
+            .Where(p => parents.Contains(p.Id))
+            .ToList();
         var result = _mapper.Map<List<PersonListDto>>(persons);
 
         var profiles = await _profileReader.GetProfileIdsByPersonIdsAsync(persons.Select(p => p.Id).ToList());

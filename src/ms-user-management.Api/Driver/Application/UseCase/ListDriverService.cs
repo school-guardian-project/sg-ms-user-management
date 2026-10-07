@@ -2,6 +2,7 @@ using AutoMapper;
 using ms_user_management.Api.Driver.Domain.Ports.In;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 using ms_user_management.Api.Shared.Application.Dto;
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 
 namespace ms_user_management.Api.Driver.Application.UseCase;
@@ -27,7 +28,10 @@ public class ListDriverService : IListDriverUseCase
 
     public async Task<IEnumerable<PersonListDto>> ExecuteAsync()
     {
-        var persons = (await _personRepository.GetAllAsync()).ToList();
+        var drivers = await _profileReader.GetPersonIdsByRoleAsync(RoleId.Driver);
+        var persons = (await _personRepository.GetAllAsync())
+            .Where(p => drivers.Contains(p.Id))
+            .ToList();
         var result = _mapper.Map<List<PersonListDto>>(persons);
 
         var licenses = await _licenseReader.GetByPersonIdsAsync(persons.Select(p => p.Id).ToList());
