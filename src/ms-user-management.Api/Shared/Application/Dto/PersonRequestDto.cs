@@ -7,7 +7,7 @@ public class PersonRequestDto
     public string IdentificationType { get; set; }
     public String IdentificationNumber { get; set; }
     public String Email { get; set; }
-    public int Phone { get; set; }
+    public long Phone { get; set; }
     public String ResidenceAddress { get; set; }
     public DateOnly DateBirth { get; set; }
 }
