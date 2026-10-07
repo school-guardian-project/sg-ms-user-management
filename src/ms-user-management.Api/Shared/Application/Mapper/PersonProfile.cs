@@ -19,6 +19,17 @@ public class PersonProfile : Profile
                         true
                     )
                 )
-            );
+            )
+            // Los DTO de alta heredan de PersonRequestDto y agregan campusId o
+            // schoolId, que no son columnas de Person. Include deja que ambos
+            // reutilicen la conversion de IdentificationType sin duplicarla.
+            .Include<CreatePersonRequestDto, Person>()
+            .Include<CreateAdminRequestDto, Person>();
+
+        CreateMap<CreatePersonRequestDto, Person>()
+            .IncludeBase<PersonRequestDto, Person>();
+
+        CreateMap<CreateAdminRequestDto, Person>()
+            .IncludeBase<PersonRequestDto, Person>();
     }
 }
