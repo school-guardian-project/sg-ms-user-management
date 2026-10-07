@@ -55,7 +55,11 @@ public class DriverLicenseViewTests
         var reader = new InMemoryPersonLicenseReader();
         reader.LicensesByPerson[withLicense] = LicenseFor(withLicense);
 
-        var service = new ListDriverService(personRepo, reader, new InMemoryPersonProfileReader(), CreateMapper());
+        var profileReader = new InMemoryPersonProfileReader();
+        profileReader.RoleByPerson[withLicense] = RoleId.Driver;
+        profileReader.RoleByPerson[withoutLicense] = RoleId.Driver;
+
+        var service = new ListDriverService(personRepo, reader, profileReader, CreateMapper());
 
         var result = (await service.ExecuteAsync()).ToList();
 
@@ -86,28 +90,5 @@ public class DriverLicenseViewTests
         Assert.Equal("ABC12345", detail.LicenseNumber);
         Assert.Equal(new DateOnly(2030, 12, 31), detail.LicenseExpirationDate);
         Assert.Equal("ana@mail.com", detail.Email);
-    }
-
-    private class InMemoryPersonRepository : IPersonRepository
-    {
-        private readonly List<Person> _persons;
-
-        public InMemoryPersonRepository(params Person[] persons) => _persons = persons.ToList();
-
-        public Task SaveAsync(Person person)
-        {
-            _persons.Add(person);
-            return Task.CompletedTask;
-        }
-
-        public Task<Person> GetByIdAsync(Guid id) =>
-            Task.FromResult(_persons.Single(p => p.Id == id));
-
-        public Task<IEnumerable<Person>> GetAllAsync() =>
-            Task.FromResult<IEnumerable<Person>>(_persons);
-
-        public Task UpdateAsync(Person person) => Task.CompletedTask;
-
-        public Task DeleteAsync(Guid id) => Task.CompletedTask;
     }
 }

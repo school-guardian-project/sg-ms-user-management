@@ -1,6 +1,7 @@
 using AutoMapper;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 using ms_user_management.Api.Shared.Application.Dto;
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
 
@@ -25,7 +26,12 @@ public class SearchPersonService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<PersonListDto>> SearchAsync(string search)
+    /// <summary>
+    /// Busca personas por email, identificación o nombre. Con <paramref name="roleId"/>
+    /// devuelve solo las que tienen ese rol: si no, una búsqueda por nombre mezcla
+    /// acudientes, estudiantes, conductores y administradores.
+    /// </summary>
+    public async Task<IEnumerable<PersonListDto>> SearchAsync(string search, RoleId? roleId = null)
     {
         search = search?.Trim() ?? string.Empty;
 
@@ -36,6 +42,13 @@ public class SearchPersonService
         if (strategy == null) return [];
 
         var persons = (await strategy.SearchAsync(search)).ToList();
+
+        if (roleId is not null)
+        {
+            var allowed = await _profileReader.GetPersonIdsByRoleAsync(roleId.Value);
+            persons = persons.Where(p => allowed.Contains(p.Id)).ToList();
+        }
+
         var result = _mapper.Map<List<PersonListDto>>(persons);
 
         var licenses = await _licenseReader.GetByPersonIdsAsync(persons.Select(p => p.Id).ToList());
