@@ -9,3 +9,5 @@ tests/**/obj*/
 .idea
 
 src/ms-user-management.Api/Config
+
+graphify-*
