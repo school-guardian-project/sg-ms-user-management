@@ -76,7 +76,7 @@ public class ParentController : ControllerBase
     [HttpGet("search")]
     public async Task<IActionResult> Search([FromQuery] string search)
     {
-        var result = await _searchPersonService.SearchAsync(search);
+        var result = await _searchPersonService.SearchAsync(search, RoleId.Parent);
 
         return Ok(result);
     }

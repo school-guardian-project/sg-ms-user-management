@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Entity;
@@ -33,6 +34,20 @@ public class PersonProfileReader : IPersonProfileReader
             result[profile.PersonId] = profile.Id;
 
         return result;
+    }
+
+    public async Task<IReadOnlySet<Guid>> GetPersonIdsByRoleAsync(
+        RoleId roleId,
+        CancellationToken ct = default)
+    {
+        var personIds = await _context.Set<ProfileRefEntity>()
+            .AsNoTracking()
+            .Where(p => p.RoleId == roleId)
+            .Select(p => p.PersonId)
+            .ToListAsync(ct);
+
+        // HashSet: los listados hacen Contains por cada persona.
+        return personIds.ToHashSet();
     }
 
     public Task<bool> ProfileExistsAsync(Guid profileId, CancellationToken ct = default)
