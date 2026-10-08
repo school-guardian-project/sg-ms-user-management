@@ -64,7 +64,7 @@ public class RoleFilteredListTests
     {
         var (repo, profiles, student, _, _, _) = Fixture();
 
-        var result = (await new ListStudentService(repo, profiles, CreateMapper()).ExecuteAsync()).ToList();
+        var result = (await new ListStudentService(repo, profiles, TenantFakes.NoFilter(profiles), CreateMapper()).ExecuteAsync()).ToList();
 
         Assert.Equal(student, Assert.Single(result).Id);
     }
@@ -74,7 +74,7 @@ public class RoleFilteredListTests
     {
         var (repo, profiles, _, parent, _, _) = Fixture();
 
-        var result = (await new ListParentService(repo, profiles, CreateMapper()).ExecuteAsync()).ToList();
+        var result = (await new ListParentService(repo, profiles, TenantFakes.NoFilter(profiles), CreateMapper()).ExecuteAsync()).ToList();
 
         Assert.Equal(parent, Assert.Single(result).Id);
     }
@@ -84,7 +84,7 @@ public class RoleFilteredListTests
     {
         var (repo, profiles, _, _, driver, _) = Fixture();
 
-        var service = new ListDriverService(repo, new InMemoryPersonLicenseReader(), profiles, CreateMapper());
+        var service = new ListDriverService(repo, new InMemoryPersonLicenseReader(), profiles, TenantFakes.NoFilter(profiles), CreateMapper());
         var result = (await service.ExecuteAsync()).ToList();
 
         Assert.Equal(driver, Assert.Single(result).Id);
@@ -95,7 +95,7 @@ public class RoleFilteredListTests
     {
         var (repo, profiles, _, _, _, admin) = Fixture();
 
-        var result = (await new ListAdminService(repo, profiles, CreateMapper()).ExecuteAsync()).ToList();
+        var result = (await new ListAdminService(repo, TenantFakes.NoFilter(profiles), CreateMapper()).ExecuteAsync()).ToList();
 
         Assert.Equal(admin, Assert.Single(result).Id);
     }

@@ -34,6 +34,12 @@ public class UserManagementContext : DbContext
             .HasNoKey()
             .ToTable("Profile", schema: "Iam");
 
+        // Solo lectura: School.SchoolCampus expande el schoolId del JWT del admin
+        // a sus sedes para el filtrado multi-tenant de los listados.
+        modelBuilder.Entity<SchoolCampusRefEntity>()
+            .HasNoKey()
+            .ToTable("SchoolCampus", schema: "School");
+
         modelBuilder.ApplyConfiguration(new PersonConfiguration());
         modelBuilder.ApplyConfiguration(new FamilyConfiguration());
         modelBuilder.ApplyConfiguration(new FamilyMemberConfiguration());

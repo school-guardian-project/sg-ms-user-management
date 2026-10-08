@@ -13,4 +13,7 @@ public class ProfileRefEntity
     public Guid Id { get; set; }
     public Guid PersonId { get; set; }
     public RoleId RoleId { get; set; }
+
+    /// <summary>Sede del perfil (nullable). Se usa para acotar los listados al tenant del JWT.</summary>
+    public Guid? CampuseId { get; set; }
 }
