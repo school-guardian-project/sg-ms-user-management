@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Infrastructure.Mapper;
+using ms_user_management.Api.Shared.Infrastructure.Controller;
 
 namespace ms_user_management.Api.Family.Infrastructure.Controller;
 
@@ -37,21 +38,28 @@ public class FamilyController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Register([FromBody] RegisterFamilyRequest request, CancellationToken ct)
     {
-        var (familyId, members) = await _registerUseCase.ExecuteAsync(
-            request.FamilyName,
-            request.Observations,
-            FamilyRequestMapper.ToUseCaseInput(request.Members),
-            ct);
-
-        return Ok(new
+        try
         {
-            familyId,
-            members = members.Select(m => new
+            var (familyId, members) = await _registerUseCase.ExecuteAsync(
+                request.FamilyName,
+                request.Observations,
+                FamilyRequestMapper.ToUseCaseInput(request.Members),
+                ct);
+
+            return Ok(new
             {
-                memberId = m.MemberId,
-                profileId = m.ProfileId
-            })
-        });
+                familyId,
+                members = members.Select(m => new
+                {
+                    memberId = m.MemberId,
+                    profileId = m.ProfileId
+                })
+            });
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
 
     [HttpGet]
@@ -89,14 +97,21 @@ public class FamilyController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] RegisterFamilyRequest request, CancellationToken ct)
     {
-        await _updateUseCase.ExecuteAsync(
-            id,
-            request.FamilyName,
-            request.Observations,
-            FamilyRequestMapper.ToUseCaseInput(request.Members),
-            ct);
+        try
+        {
+            await _updateUseCase.ExecuteAsync(
+                id,
+                request.FamilyName,
+                request.Observations,
+                FamilyRequestMapper.ToUseCaseInput(request.Members),
+                ct);
 
-        return Ok();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
 
     [HttpDelete("{id:guid}")]

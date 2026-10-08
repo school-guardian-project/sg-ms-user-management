@@ -31,6 +31,16 @@ public static class ApiErrors
             ex, StatusCodes.Status404NotFound, "Not found",
             "La entidad solicitada no existe."),
 
+        ProfileAlreadyInFamilyException => Problem(
+            ex, StatusCodes.Status409Conflict, "Profile already in family",
+            "Solo pueden pertenecer a una familia las personas que aun no tengan otra. "
+            + "Registra un acudiente nuevo si todos los visibles ya estan asignados."),
+
+        ArgumentException => Problem(
+            ex, StatusCodes.Status400BadRequest, "Invalid request",
+            "Revisa la familia: el nombre es obligatorio, debe tener al menos un miembro "
+            + "y no puede repetir perfiles."),
+
         // El id no tiene forma de UUID: tampoco puede existir.
         InvalidSchoolOrCampusIdException => Problem(
             ex, StatusCodes.Status400BadRequest, "Invalid id",

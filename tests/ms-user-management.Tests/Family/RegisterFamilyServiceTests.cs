@@ -1,5 +1,6 @@
 using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Model;
+using ms_user_management.Api.Shared.Domain.Exceptions;
 using ms_user_management.Tests.Fakes;
 using Xunit;
 
@@ -34,18 +35,19 @@ public class RegisterFamilyServiceTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ConMiembroYaAsociado_Rechaza()
+    public async Task ExecuteAsync_ConMiembroYaAsociado_RechazaCon409()
     {
         var repo = new InMemoryFamilyRepository();
         var taken = Guid.NewGuid();
         repo.Members.Add((Guid.NewGuid(), Guid.NewGuid(), taken, RelationType.Student));
         var service = new RegisterFamilyService(repo);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var ex = await Assert.ThrowsAsync<ProfileAlreadyInFamilyException>(() =>
             service.ExecuteAsync("Perez", null,
                 new List<(Guid, RelationType)> { (taken, RelationType.Student) }));
 
-        Assert.Contains("already associated", ex.Message);
+        Assert.Contains("pertenece a otra familia", ex.Message);
+        Assert.Contains(taken, ex.ProfileIds);
         Assert.Empty(repo.Families);
     }
 
