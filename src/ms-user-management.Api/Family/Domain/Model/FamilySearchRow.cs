@@ -8,5 +8,5 @@ public class FamilySearchRow
     public Guid? ParentProfileId { get; set; }
     public String GuardianName { get; set; } = string.Empty;
     public String GuardianLastName { get; set; } = string.Empty;
-    public int GuardianPhone { get; set; }
+    public long GuardianPhone { get; set; }
 }

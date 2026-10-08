@@ -7,7 +7,7 @@ public class PersonListDto
     public String LastName { get; set; }
     public String IdentificationNumber { get; set; }
     public String Email { get; set; }
-    public int Phone { get; set; }
+    public long Phone { get; set; }
     public Guid? ProfileId { get; set; }
 
     // Solo conductores: vienen de UserManagement.DriverLicense (null en los demás roles).
