@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
-using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Infrastructure.Controller;
 using ms_user_management.Api.Student.Application.UseCase;
 
 namespace ms_user_management.Api.Student.Infrastructure.Controller;
@@ -28,11 +28,18 @@ public class StudentController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PersonRequestDto dto)
+    public async Task<IActionResult> Create([FromBody] CreatePersonRequestDto dto)
     {
-        await _createStudentService.CreateAsync(dto);
+        try
+        {
+            await _createStudentService.CreateAsync(dto);
 
-        return Ok();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
 
     [HttpGet("{id:guid}")]

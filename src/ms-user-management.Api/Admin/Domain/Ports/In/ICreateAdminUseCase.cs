@@ -4,5 +4,5 @@ namespace ms_user_management.Api.Admin.Domain.Ports.In;
 
 public interface ICreateAdminUseCase
 {
-    Task CreateAsync(PersonRequestDto dto);
+    Task CreateAsync(CreateAdminRequestDto dto);
 }
