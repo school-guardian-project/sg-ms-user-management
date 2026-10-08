@@ -13,6 +13,7 @@
     <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="Confluent.Kafka" Version="2.15.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.84.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.84.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" />
@@ -22,6 +23,12 @@
 
   <ItemGroup>
     <Protobuf Include="Protos\family.proto" GrpcServices="Server" />
+    <!--
+      school_management.proto se sincroniza con ../sync-protos.sh. GrpcServices
+      es "Client" porque aqui solo se consume: el servidor vive en
+      ms-school-management.
+    -->
+    <Protobuf Include="Protos\school_management.proto" GrpcServices="Client" />
   </ItemGroup>
 
   <ItemGroup>
