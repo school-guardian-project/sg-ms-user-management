@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
+using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 
 namespace ms_user_management.Api.Parent.Infrastructure.Controller;
