@@ -1,6 +1,7 @@
 using AutoMapper;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 using ms_user_management.Api.Shared.Application.Dto;
+using ms_user_management.Api.Shared.Application.Tenant;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
@@ -12,17 +13,20 @@ public class SearchPersonService
     private readonly IEnumerable<IPersonSearchStrategy> _strategies;
     private readonly IPersonLicenseReader _licenseReader;
     private readonly IPersonProfileReader _profileReader;
+    private readonly TenantPersonFilter _tenantFilter;
     private readonly IMapper _mapper;
 
     public SearchPersonService(
         IEnumerable<IPersonSearchStrategy> strategies,
         IPersonLicenseReader licenseReader,
         IPersonProfileReader profileReader,
+        TenantPersonFilter tenantFilter,
         IMapper mapper)
     {
         _strategies = strategies;
         _licenseReader = licenseReader;
         _profileReader = profileReader;
+        _tenantFilter = tenantFilter;
         _mapper = mapper;
     }
 
@@ -45,7 +49,7 @@ public class SearchPersonService
 
         if (roleId is not null)
         {
-            var allowed = await _profileReader.GetPersonIdsByRoleAsync(roleId.Value);
+            var allowed = await _tenantFilter.GetVisiblePersonIdsAsync(roleId.Value);
             persons = persons.Where(p => allowed.Contains(p.Id)).ToList();
         }
 

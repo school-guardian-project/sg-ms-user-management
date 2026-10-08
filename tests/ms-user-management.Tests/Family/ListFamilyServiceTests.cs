@@ -30,7 +30,7 @@ public class ListFamilyServiceTests
         repo.Members.Add((Guid.NewGuid(), family.Id, parent, RelationType.Parent));
         repo.Members.Add((Guid.NewGuid(), family.Id, Guid.NewGuid(), RelationType.Student));
 
-        var result = (await new ListFamilyService(repo).ExecuteAsync()).ToList();
+        var result = (await new ListFamilyService(repo, TenantFakes.NoFilter(new InMemoryPersonProfileReader()), new InMemoryPersonProfileReader()).ExecuteAsync()).ToList();
 
         Assert.Equal(2, result.Count);
 
@@ -48,7 +48,7 @@ public class ListFamilyServiceTests
     {
         var repo = new InMemoryFamilyRepository();
 
-        var result = await new ListFamilyService(repo).ExecuteAsync();
+        var result = await new ListFamilyService(repo, TenantFakes.NoFilter(new InMemoryPersonProfileReader()), new InMemoryPersonProfileReader()).ExecuteAsync();
 
         Assert.Empty(result);
     }
