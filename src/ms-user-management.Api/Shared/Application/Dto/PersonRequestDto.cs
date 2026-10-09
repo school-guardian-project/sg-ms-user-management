@@ -15,6 +15,8 @@ public class PersonRequestDto
     public long Phone { get; set; }
     public string ResidenceAddress { get; set; }
     public DateOnly DateBirth { get; set; }
+    public Guid? CityId { get; set; }
+    public Guid? SchoolId { get; set; }
 }
 
 /// <summary>
@@ -52,5 +54,4 @@ public class CreatePersonRequestDto : PersonRequestDto
 /// </summary>
 public class CreateAdminRequestDto : PersonRequestDto
 {
-    public Guid? SchoolId { get; set; }
 }
