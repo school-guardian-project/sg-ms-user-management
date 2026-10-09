@@ -30,4 +30,6 @@ public interface IPersonProfileReader
     Task<bool> ProfileExistsAsync(Guid profileId, CancellationToken ct = default);
 
     Task<string?> GetPersonNameAsync(Guid profileId, CancellationToken ct = default);
+
+    Task<Guid?> GetSchoolIdByCampusIdAsync(Guid campusId, CancellationToken ct = default);
 }

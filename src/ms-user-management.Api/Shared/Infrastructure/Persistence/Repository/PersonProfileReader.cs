@@ -79,6 +79,15 @@ public class PersonProfileReader : IPersonProfileReader
             .AnyAsync(p => p.Id == profileId, ct);
     }
 
+    public Task<Guid?> GetSchoolIdByCampusIdAsync(Guid campusId, CancellationToken ct = default)
+    {
+        return _context.Database.SqlQuery<Guid?>($"""
+            SELECT c.SchoolId AS Value FROM School.SchoolCampus c
+            JOIN School.School s ON s.Id = c.SchoolId
+            WHERE c.Id = {campusId} AND c.Status = 'Active' AND s.Status = 'Active'
+            """).FirstOrDefaultAsync(ct);
+    }
+
     public async Task<string?> GetPersonNameAsync(Guid profileId, CancellationToken ct = default)
     {
         var personId = await _context.Set<ProfileRefEntity>()

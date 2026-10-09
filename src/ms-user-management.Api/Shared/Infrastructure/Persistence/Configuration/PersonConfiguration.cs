@@ -17,6 +17,8 @@ public class PersonConfiguration : IEntityTypeConfiguration<PersonEntity>
         builder.Property(x => x.Phone); 
         builder.Property(x => x.ResidenceAddress).HasMaxLength(50); 
         builder.Property(x => x.DateBirth).IsRequired(); 
+        builder.Property(x => x.CityId);
+        builder.Property(x => x.SchoolId);
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(20).IsRequired();
     }
 }
