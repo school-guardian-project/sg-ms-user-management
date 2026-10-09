@@ -6,4 +6,5 @@ public class ParentCreatedEvent
     public Guid PersonId { get; set; }
     public string Email { get; set; }
     public string IdentificationNumber { get; set; }
+    public Guid? CampusId { get; set; }
 }

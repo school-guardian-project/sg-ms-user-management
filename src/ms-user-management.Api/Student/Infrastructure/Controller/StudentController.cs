@@ -30,7 +30,14 @@ public class StudentController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] PersonRequestDto dto)
     {
-        await _createStudentService.CreateAsync(dto);
+        try
+        {
+            await _createStudentService.CreateAsync(dto);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ProblemDetails { Title = "Invalid school campus", Detail = ex.Message, Status = 400 });
+        }
 
         return Ok();
     }

@@ -30,7 +30,14 @@ public class DriverController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] PersonRequestDto dto)
     {
-        await _createDriverService.CreateAsync(dto);
+        try
+        {
+            await _createDriverService.CreateAsync(dto);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ProblemDetails { Title = "Invalid school campus", Detail = ex.Message, Status = 400 });
+        }
 
         return Ok();
     }

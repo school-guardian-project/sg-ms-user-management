@@ -12,4 +12,5 @@ public class PersonRequestDto
     public DateOnly DateBirth { get; set; }
     public Guid? CityId { get; set; }
     public Guid? SchoolId { get; set; }
+    public Guid? CampusId { get; set; }
 }

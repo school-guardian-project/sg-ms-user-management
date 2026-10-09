@@ -8,6 +8,10 @@ public class InMemoryPersonProfileReader : IPersonProfileReader
     public readonly Dictionary<Guid, Guid> ProfileByPerson = new();
     public readonly Dictionary<Guid, RoleId> RoleByPerson = new();
     public readonly Dictionary<Guid, string> NameByProfile = new();
+    public readonly Dictionary<Guid, Guid> SchoolByCampus = new();
+
+    public Task<Guid?> GetSchoolIdByCampusIdAsync(Guid campusId, CancellationToken ct = default)
+        => Task.FromResult(SchoolByCampus.TryGetValue(campusId, out var schoolId) ? (Guid?)schoolId : null);
 
     public Task<IReadOnlyDictionary<Guid, Guid>> GetProfileIdsByPersonIdsAsync(
         IReadOnlyCollection<Guid> personIds,
