@@ -1,10 +1,7 @@
+using ms_user_management.Api.Shared.Domain.Event;
+
 namespace ms_user_management.Api.Driver.Domain.Event;
 
-public class DriverCreatedEvent
+public class DriverCreatedEvent : PersonCreatedEventBase
 {
-    public Guid EventId { get; set; }
-    public Guid PersonId { get; set; }
-    public string Email { get; set; }
-    public string IdentificationNumber { get; set; }
-    public Guid? CampusId { get; set; }
 }

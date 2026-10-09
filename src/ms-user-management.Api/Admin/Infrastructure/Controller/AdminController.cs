@@ -3,6 +3,7 @@ using ms_user_management.Api.Admin.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Infrastructure.Controller;
 
 namespace ms_user_management.Api.Admin.Infrastructure.Controller;
 
@@ -28,12 +29,18 @@ public class AdminController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PersonRequestDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateAdminRequestDto dto)
     {
-        if (!HasSchoolAndCity(dto)) return BadRequest("CityId and SchoolId are required for an administrator.");
-        await _createAdminService.CreateAsync(dto);
+        try
+        {
+            await _createAdminService.CreateAsync(dto);
 
-        return Ok();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
 
     [HttpGet("{id:guid}")]

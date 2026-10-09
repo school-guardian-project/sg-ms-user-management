@@ -59,7 +59,7 @@ public class DriverLicenseViewTests
         profileReader.RoleByPerson[withLicense] = RoleId.Driver;
         profileReader.RoleByPerson[withoutLicense] = RoleId.Driver;
 
-        var service = new ListDriverService(personRepo, reader, profileReader, CreateMapper());
+        var service = new ListDriverService(personRepo, reader, profileReader, TenantFakes.NoFilter(profileReader), CreateMapper());
 
         var result = (await service.ExecuteAsync()).ToList();
 

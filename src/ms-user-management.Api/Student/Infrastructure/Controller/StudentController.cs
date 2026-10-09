@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Infrastructure.Controller;
 using ms_user_management.Api.Student.Application.UseCase;
 
 namespace ms_user_management.Api.Student.Infrastructure.Controller;
@@ -28,18 +29,18 @@ public class StudentController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] PersonRequestDto dto)
+    public async Task<IActionResult> Create([FromBody] CreatePersonRequestDto dto)
     {
         try
         {
             await _createStudentService.CreateAsync(dto);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new ProblemDetails { Title = "Invalid school campus", Detail = ex.Message, Status = 400 });
-        }
 
-        return Ok();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
 
     [HttpGet("{id:guid}")]

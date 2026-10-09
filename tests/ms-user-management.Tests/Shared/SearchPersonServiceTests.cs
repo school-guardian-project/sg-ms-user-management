@@ -44,6 +44,7 @@ public class SearchPersonServiceTests
             new IPersonSearchStrategy[] { new NameSearchStrategy(new FakePersonSearchRepository()) },
             new InMemoryPersonLicenseReader(),
             new InMemoryPersonProfileReader(),
+            TenantFakes.NoFilter(new InMemoryPersonProfileReader()),
             CreateMapper());
 
         var result = await service.SearchAsync("   ");
@@ -71,6 +72,7 @@ public class SearchPersonServiceTests
             new IPersonSearchStrategy[] { new NameSearchStrategy(repo) },
             reader,
             new InMemoryPersonProfileReader(),
+            TenantFakes.NoFilter(new InMemoryPersonProfileReader()),
             CreateMapper());
 
         var result = (await service.SearchAsync("ana")).ToList();
@@ -96,6 +98,7 @@ public class SearchPersonServiceTests
             new IPersonSearchStrategy[] { new NameSearchStrategy(repo) },
             new InMemoryPersonLicenseReader(),
             profileReader,
+            TenantFakes.NoFilter(profileReader),
             CreateMapper());
 
         var result = (await service.SearchAsync("ana")).ToList();
@@ -121,6 +124,7 @@ public class SearchPersonServiceTests
             new IPersonSearchStrategy[] { new NameSearchStrategy(repo) },
             new InMemoryPersonLicenseReader(),
             profileReader,
+            TenantFakes.NoFilter(profileReader),
             CreateMapper());
 
         // Sin rol "ana" devuelve a las dos; con rol solo la del rol pedido.

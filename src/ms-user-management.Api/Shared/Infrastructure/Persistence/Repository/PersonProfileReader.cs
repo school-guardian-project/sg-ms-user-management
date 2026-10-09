@@ -38,16 +38,38 @@ public class PersonProfileReader : IPersonProfileReader
 
     public async Task<IReadOnlySet<Guid>> GetPersonIdsByRoleAsync(
         RoleId roleId,
+        IReadOnlyCollection<Guid>? campusIds = null,
         CancellationToken ct = default)
     {
-        var personIds = await _context.Set<ProfileRefEntity>()
+        var query = _context.Set<ProfileRefEntity>()
             .AsNoTracking()
-            .Where(p => p.RoleId == roleId)
+            .Where(p => p.RoleId == roleId);
+
+        if (campusIds is not null)
+            query = query.Where(p => p.CampuseId != null && campusIds.Contains(p.CampuseId.Value));
+
+        var personIds = await query
             .Select(p => p.PersonId)
             .ToListAsync(ct);
 
         // HashSet: los listados hacen Contains por cada persona.
         return personIds.ToHashSet();
+    }
+
+    public async Task<IReadOnlySet<Guid>> GetProfileIdsInCampusesAsync(
+        IReadOnlyCollection<Guid> campusIds,
+        CancellationToken ct = default)
+    {
+        if (campusIds.Count == 0)
+            return new HashSet<Guid>();
+
+        var profileIds = await _context.Set<ProfileRefEntity>()
+            .AsNoTracking()
+            .Where(p => p.CampuseId != null && campusIds.Contains(p.CampuseId.Value))
+            .Select(p => p.Id)
+            .ToListAsync(ct);
+
+        return profileIds.ToHashSet();
     }
 
     public Task<bool> ProfileExistsAsync(Guid profileId, CancellationToken ct = default)
