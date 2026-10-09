@@ -17,3 +17,6 @@ identificar una sede activa de una escuela activa. Si falta o no existe, devuelv
 Los administradores siguen enviando `schoolId`: IAM mantiene la relacion existente
 `School.SchoolAdmin`, sin reemplazarla por una sede. Los PUT de usuarios normales
 conservan su sede; este contrato no implementa traslados entre sedes.
+
+El DTO compartido de actualizacion incluye `cityId` y `schoolId` para el PUT
+de administradores; el controlador exige ambos y publica la reasignacion de escuela.

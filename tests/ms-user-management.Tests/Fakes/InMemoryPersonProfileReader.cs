@@ -10,6 +10,7 @@ public class InMemoryPersonProfileReader : IPersonProfileReader
     public readonly Dictionary<Guid, string> NameByProfile = new();
     public readonly Dictionary<Guid, Guid> CampusByPerson = new();
     public readonly Dictionary<Guid, Guid> CampusByProfile = new();
+    public readonly Dictionary<Guid, Guid> SchoolByCampus = new();
 
     public Task<IReadOnlyDictionary<Guid, Guid>> GetProfileIdsByPersonIdsAsync(
         IReadOnlyCollection<Guid> personIds,
@@ -54,4 +55,7 @@ public class InMemoryPersonProfileReader : IPersonProfileReader
 
     public Task<string?> GetPersonNameAsync(Guid profileId, CancellationToken ct = default)
         => Task.FromResult(NameByProfile.TryGetValue(profileId, out var name) ? name : null);
+
+    public Task<Guid?> GetSchoolIdByCampusIdAsync(Guid campusId, CancellationToken ct = default)
+        => Task.FromResult<Guid?>(SchoolByCampus.TryGetValue(campusId, out var schoolId) ? schoolId : null);
 }
