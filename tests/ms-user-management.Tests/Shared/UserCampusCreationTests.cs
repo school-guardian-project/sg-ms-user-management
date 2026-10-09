@@ -5,6 +5,7 @@ using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Mapper;
 using ms_user_management.Api.Shared.Domain.Port.Out;
+using ms_user_management.Api.Shared.Domain.Exceptions;
 using ms_user_management.Api.Student.Application.UseCase;
 using ms_user_management.Tests.Fakes;
 using Xunit;
@@ -13,6 +14,17 @@ namespace ms_user_management.Tests.Shared;
 
 public class UserCampusCreationTests
 {
+    private sealed class SchoolDirectory(Guid campusId) : ISchoolDirectory
+    {
+        public Task<string?> FindSchoolNameAsync(Guid schoolId, CancellationToken ct = default) =>
+            throw new NotSupportedException();
+        public Task EnsureSchoolExistsAsync(Guid schoolId, CancellationToken ct = default) =>
+            throw new NotSupportedException();
+        public Task<string?> FindCampusNameAsync(Guid id, CancellationToken ct = default) =>
+            Task.FromResult<string?>(id == campusId ? "Sede central" : null);
+        public Task EnsureCampusExistsAsync(Guid id, CancellationToken ct = default) =>
+            id == campusId ? Task.CompletedTask : throw new CampusNotFoundException(id);
+    }
     private sealed class Publisher : IEventPublisher
     {
         public string? Topic { get; private set; }
@@ -40,27 +52,26 @@ public class UserCampusCreationTests
     public async Task CreationPublishesSelectedCampusAndRejectsMissingOrUnknownCampus(string role)
     {
         var repository = new InMemoryPersonRepository();
-        var profiles = new InMemoryPersonProfileReader();
         var publisher = new Publisher();
         var campusId = Guid.NewGuid();
-        profiles.SchoolByCampus[campusId] = Guid.NewGuid();
+        var schools = new SchoolDirectory(campusId);
         var mapper = Mapper();
-        Func<PersonRequestDto, Task> create = role switch
+        Func<CreatePersonRequestDto, Task> create = role switch
         {
-            "student" => new CreateStudentService(repository, mapper, publisher, profiles).CreateAsync,
-            "driver" => new CreateDriverService(repository, mapper, publisher, profiles).CreateAsync,
-            _ => new CreateParentService(repository, mapper, publisher, profiles).CreateAsync
+            "student" => new CreateStudentService(repository, mapper, publisher, schools).CreateAsync,
+            "driver" => new CreateDriverService(repository, mapper, publisher, schools).CreateAsync,
+            _ => new CreateParentService(repository, mapper, publisher, schools).CreateAsync
         };
-        var dto = new PersonRequestDto
+        var dto = new CreatePersonRequestDto
         {
             Name = "Campus", LastName = "Test", Email = "campus@example.invalid",
             IdentificationType = "CC", IdentificationNumber = "123456",
             Phone = 3001234567, ResidenceAddress = "Test street",
             DateBirth = new DateOnly(2000, 1, 1)
         };
-        await Assert.ThrowsAsync<ArgumentException>(() => create(dto));
+        await Assert.ThrowsAsync<CampusIdRequiredException>(() => create(dto));
         dto.CampusId = Guid.NewGuid();
-        await Assert.ThrowsAsync<ArgumentException>(() => create(dto));
+        await Assert.ThrowsAsync<CampusNotFoundException>(() => create(dto));
         Assert.Empty(await repository.GetAllAsync());
         Assert.Null(publisher.Event);
 
