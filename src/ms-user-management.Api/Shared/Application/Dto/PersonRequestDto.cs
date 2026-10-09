@@ -12,7 +12,7 @@ public class PersonRequestDto
     public string IdentificationType { get; set; }
     public string IdentificationNumber { get; set; }
     public string Email { get; set; }
-    public int Phone { get; set; }
+    public long Phone { get; set; }
     public string ResidenceAddress { get; set; }
     public DateOnly DateBirth { get; set; }
 }
