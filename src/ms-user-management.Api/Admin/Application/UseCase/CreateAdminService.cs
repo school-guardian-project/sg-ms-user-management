@@ -34,7 +34,8 @@ public class CreateAdminService : ICreateAdminUseCase
             EventId = Guid.NewGuid(),
             PersonId = person.Id,
             Email = person.Email,
-            IdentificationNumber = person.IdentificationNumber
+            IdentificationNumber = person.IdentificationNumber,
+            SchoolId = person.SchoolId
         };
         
         await _eventPublisher.PublishAsync("admin.created", adminCreatedEvent);

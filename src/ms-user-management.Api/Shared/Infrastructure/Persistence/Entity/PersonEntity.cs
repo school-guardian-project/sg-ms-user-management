@@ -13,5 +13,7 @@ public class PersonEntity
     public long Phone { get; set; }
     public String ResidenceAddress { get; set; }
     public DateOnly DateBirth { get; set; }
+    public Guid? CityId { get; set; }
+    public Guid? SchoolId { get; set; }
     public Status Status { get; set; }
 }
