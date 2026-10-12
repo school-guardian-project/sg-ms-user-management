@@ -4,9 +4,11 @@ using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Parent.Infrastructure.Controller;
 
+[EnableRateLimiting("registration")]
 [ApiController]
 [Route("api/parents")]
 public class ParentController : ControllerBase

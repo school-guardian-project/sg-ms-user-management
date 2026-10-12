@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Infrastructure.Mapper;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Family.Infrastructure.Controller;
 
+[EnableRateLimiting("registration")]
 [ApiController]
 [Route("api/families")]
 public class FamilyController : ControllerBase
