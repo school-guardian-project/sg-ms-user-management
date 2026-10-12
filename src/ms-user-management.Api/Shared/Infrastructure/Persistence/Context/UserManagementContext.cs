@@ -10,7 +10,7 @@ namespace ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
 
 public class UserManagementContext : DbContext
 {
-    public UserManagementContext(DbContextOptions options) : base(options) { }
+    public UserManagementContext(DbContextOptions<UserManagementContext> options) : base(options) { }
     
     public DbSet<PersonEntity> Person => Set<PersonEntity>();
     public DbSet<FamilyEntity> Families => Set<FamilyEntity>();
@@ -45,6 +45,4 @@ public class UserManagementContext : DbContext
         modelBuilder.ApplyConfiguration(new FamilyMemberConfiguration());
         modelBuilder.ApplyConfiguration(new DriverLicenseConfiguration());
     }
-
-    protected UserManagementContext() { }
 }
