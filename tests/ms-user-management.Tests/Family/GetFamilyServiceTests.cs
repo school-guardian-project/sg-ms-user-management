@@ -2,11 +2,12 @@ using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 using FamilyModel = ms_user_management.Api.Family.Domain.Model.Family;
 
 namespace ms_user_management.Tests.Family;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class GetFamilyServiceTests
 {
     private static FamilyModel NewFamily(string name, string observations = "") => new()
@@ -17,7 +18,7 @@ public class GetFamilyServiceTests
         Status = Status.Active
     };
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_ConFamilia_RetornaNombreParentHijosYDescripcion()
     {
         var repo = new InMemoryFamilyRepository();
@@ -33,14 +34,14 @@ public class GetFamilyServiceTests
 
         var result = await new GetFamilyService(repo).ExecuteAsync(family.Id);
 
-        Assert.Equal(family.Id, result.Id);
-        Assert.Equal("Perez", result.Name);
-        Assert.Equal(parent, result.ParentProfileId);
-        Assert.Equal(new[] { childOne, childTwo }, result.Children);
-        Assert.Equal("Ruta 5", result.Description);
+        Assert.That(result.Id, Is.EqualTo(family.Id));
+        Assert.That(result.Name, Is.EqualTo("Perez"));
+        Assert.That(result.ParentProfileId, Is.EqualTo(parent));
+        Assert.That(result.Children, Is.EqualTo(new[] { childOne, childTwo }));
+        Assert.That(result.Description, Is.EqualTo("Ruta 5"));
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_ConFamiliaSinParent_DejaParentEnNulo()
     {
         var repo = new InMemoryFamilyRepository();
@@ -50,18 +51,18 @@ public class GetFamilyServiceTests
 
         var result = await new GetFamilyService(repo).ExecuteAsync(family.Id);
 
-        Assert.Null(result.ParentProfileId);
-        Assert.Single(result.Children);
+        Assert.That(result.ParentProfileId, Is.Null);
+        Assert.That(result.Children, Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_FamiliaInexistente_LanzaError()
     {
         var repo = new InMemoryFamilyRepository();
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(
             () => new GetFamilyService(repo).ExecuteAsync(Guid.NewGuid()));
 
-        Assert.Contains("not found", ex.Message);
+        Assert.That(ex.Message, Does.Contain("not found"));
     }
 }

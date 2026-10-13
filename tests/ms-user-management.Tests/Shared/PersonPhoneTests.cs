@@ -4,13 +4,14 @@ using ms_user_management.Api.Admin.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Mapper;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace ms_user_management.Tests.Shared;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class PersonPhoneTests
 {
-    [Fact]
+    [Test]
     public async Task GetAdmin_PreservesBigIntPhoneAndPersonalDetails()
     {
         var services = new ServiceCollection();
@@ -31,11 +32,11 @@ public class PersonPhoneTests
 
         var result = await service.GetByIdAsync(person.Id);
 
-        Assert.Equal(person.Id, result.Id);
-        Assert.Equal(3001234567L, result.Phone);
-        Assert.Equal(person.Name, result.Name);
-        Assert.Equal(person.Email, result.Email);
-        Assert.Equal(person.ResidenceAddress, result.ResidenceAddress);
-        Assert.Equal(person.DateBirth, result.DateBirth);
+        Assert.That(result.Id, Is.EqualTo(person.Id));
+        Assert.That(result.Phone, Is.EqualTo(3001234567L));
+        Assert.That(result.Name, Is.EqualTo(person.Name));
+        Assert.That(result.Email, Is.EqualTo(person.Email));
+        Assert.That(result.ResidenceAddress, Is.EqualTo(person.ResidenceAddress));
+        Assert.That(result.DateBirth, Is.EqualTo(person.DateBirth));
     }
 }

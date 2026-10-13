@@ -2,11 +2,12 @@ using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 using FamilyModel = ms_user_management.Api.Family.Domain.Model.Family;
 
 namespace ms_user_management.Tests.Family;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class ListFamilyServiceTests
 {
     private static FamilyModel NewFamily(string name, string observations = "") => new()
@@ -17,7 +18,7 @@ public class ListFamilyServiceTests
         Status = Status.Active
     };
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_ConFamilias_RetornaSoloNombreYParent()
     {
         var repo = new InMemoryFamilyRepository();
@@ -32,24 +33,24 @@ public class ListFamilyServiceTests
 
         var result = (await new ListFamilyService(repo, TenantFakes.NoFilter(new InMemoryPersonProfileReader()), new InMemoryPersonProfileReader()).ExecuteAsync()).ToList();
 
-        Assert.Equal(2, result.Count);
+        Assert.That(result.Count, Is.EqualTo(2));
 
         var perez = result.Single(f => f.Name == "Perez");
-        Assert.Equal(family.Id, perez.Id);
-        Assert.Equal(parent, perez.ParentProfileId);
+        Assert.That(perez.Id, Is.EqualTo(family.Id));
+        Assert.That(perez.ParentProfileId, Is.EqualTo(parent));
 
         var gomez = result.Single(f => f.Name == "Gomez");
-        Assert.Equal(withoutParent.Id, gomez.Id);
-        Assert.Null(gomez.ParentProfileId);
+        Assert.That(gomez.Id, Is.EqualTo(withoutParent.Id));
+        Assert.That(gomez.ParentProfileId, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_SinFamilias_RetornaVacio()
     {
         var repo = new InMemoryFamilyRepository();
 
         var result = await new ListFamilyService(repo, TenantFakes.NoFilter(new InMemoryPersonProfileReader()), new InMemoryPersonProfileReader()).ExecuteAsync();
 
-        Assert.Empty(result);
+        Assert.That(result, Is.Empty);
     }
 }

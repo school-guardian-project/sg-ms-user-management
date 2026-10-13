@@ -8,10 +8,11 @@ using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Api.Shared.Domain.Exceptions;
 using ms_user_management.Api.Student.Application.UseCase;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace ms_user_management.Tests.Shared;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class UserCampusCreationTests
 {
     private sealed class SchoolDirectory(Guid campusId) : ISchoolDirectory
@@ -45,10 +46,9 @@ public class UserCampusCreationTests
         return services.BuildServiceProvider().GetRequiredService<IMapper>();
     }
 
-    [Theory]
-    [InlineData("student")]
-    [InlineData("driver")]
-    [InlineData("parent")]
+    [TestCase("student")]
+    [TestCase("driver")]
+    [TestCase("parent")]
     public async Task CreationPublishesSelectedCampusAndRejectsMissingOrUnknownCampus(string role)
     {
         var repository = new InMemoryPersonRepository();
@@ -69,17 +69,17 @@ public class UserCampusCreationTests
             Phone = 3001234567, ResidenceAddress = "Test street",
             DateBirth = new DateOnly(2000, 1, 1)
         };
-        await Assert.ThrowsAsync<CampusIdRequiredException>(() => create(dto));
+        Assert.ThrowsAsync<CampusIdRequiredException>(() => create(dto));
         dto.CampusId = Guid.NewGuid();
-        await Assert.ThrowsAsync<CampusNotFoundException>(() => create(dto));
-        Assert.Empty(await repository.GetAllAsync());
-        Assert.Null(publisher.Event);
+        Assert.ThrowsAsync<CampusNotFoundException>(() => create(dto));
+        Assert.That(await repository.GetAllAsync(), Is.Empty);
+        Assert.That(publisher.Event, Is.Null);
 
         dto.CampusId = campusId;
         await create(dto);
-        Assert.Single(await repository.GetAllAsync());
-        Assert.Equal($"{role}.created", publisher.Topic);
-        Assert.NotNull(publisher.Event);
-        Assert.Equal(campusId, publisher.Event.GetType().GetProperty("CampusId")!.GetValue(publisher.Event));
+        Assert.That(await repository.GetAllAsync(), Has.Exactly(1).Items);
+        Assert.That(publisher.Topic, Is.EqualTo($"{role}.created"));
+        Assert.That(publisher.Event, Is.Not.Null);
+        Assert.That(publisher.Event.GetType().GetProperty("CampusId")!.GetValue(publisher.Event), Is.EqualTo(campusId));
     }
 }

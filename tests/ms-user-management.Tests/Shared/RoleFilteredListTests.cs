@@ -7,7 +7,7 @@ using ms_user_management.Api.Shared.Application.Mapper;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Student.Application.UseCase;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace ms_user_management.Tests.Shared;
 
@@ -16,6 +16,7 @@ namespace ms_user_management.Tests.Shared;
 /// GetAllAsync() sin filtrar, así que /api/parents, /api/students, /api/drivers
 /// y /api/admins regresaban exactamente las mismas personas.
 /// </summary>
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class RoleFilteredListTests
 {
     private static IMapper CreateMapper()
@@ -59,27 +60,27 @@ public class RoleFilteredListTests
         return (repo, profiles, student.Id, parent.Id, driver.Id, admin.Id);
     }
 
-    [Fact]
+    [Test]
     public async Task ListStudent_DevuelveSoloEstudiantes()
     {
         var (repo, profiles, student, _, _, _) = Fixture();
 
         var result = (await new ListStudentService(repo, profiles, TenantFakes.NoFilter(profiles), CreateMapper()).ExecuteAsync()).ToList();
 
-        Assert.Equal(student, Assert.Single(result).Id);
+        Assert.That(result.Single().Id, Is.EqualTo(student));
     }
 
-    [Fact]
+    [Test]
     public async Task ListParent_DevuelveSoloAcudientes()
     {
         var (repo, profiles, _, parent, _, _) = Fixture();
 
         var result = (await new ListParentService(repo, profiles, TenantFakes.NoFilter(profiles), CreateMapper()).ExecuteAsync()).ToList();
 
-        Assert.Equal(parent, Assert.Single(result).Id);
+        Assert.That(result.Single().Id, Is.EqualTo(parent));
     }
 
-    [Fact]
+    [Test]
     public async Task ListDriver_DevuelveSoloConductores()
     {
         var (repo, profiles, _, _, driver, _) = Fixture();
@@ -87,16 +88,16 @@ public class RoleFilteredListTests
         var service = new ListDriverService(repo, new InMemoryPersonLicenseReader(), profiles, TenantFakes.NoFilter(profiles), CreateMapper());
         var result = (await service.ExecuteAsync()).ToList();
 
-        Assert.Equal(driver, Assert.Single(result).Id);
+        Assert.That(result.Single().Id, Is.EqualTo(driver));
     }
 
-    [Fact]
+    [Test]
     public async Task ListAdmin_DevuelveSoloAdministradores()
     {
         var (repo, profiles, _, _, _, admin) = Fixture();
 
         var result = (await new ListAdminService(repo, TenantFakes.NoFilter(profiles), CreateMapper()).ExecuteAsync()).ToList();
 
-        Assert.Equal(admin, Assert.Single(result).Id);
+        Assert.That(result.Single().Id, Is.EqualTo(admin));
     }
 }
