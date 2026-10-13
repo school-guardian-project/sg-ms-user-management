@@ -4,11 +4,12 @@ using ms_user_management.Api.Family.Domain.Model;
 using ms_user_management.Api.Family.Domain.Ports.Out;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 using FamilyModel = ms_user_management.Api.Family.Domain.Model.Family;
 
 namespace ms_user_management.Tests.Family;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class SearchFamilyServiceTests
 {
     private static FamilyModel NewFamily(string name, string observations = "") => new()
@@ -26,7 +27,7 @@ public class SearchFamilyServiceTests
             new NameSearchStrategy()
         });
 
-    [Fact]
+    [Test]
     public async Task SearchAsync_TerminoVacio_RetornaVacio()
     {
         var repo = new InMemoryFamilyRepository();
@@ -34,10 +35,10 @@ public class SearchFamilyServiceTests
 
         var result = await NewService(repo).SearchAsync("   ");
 
-        Assert.Empty(result);
+        Assert.That(result, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public async Task SearchAsync_NombreDeFamilia_RetornaSoloCoincidencia()
     {
         var repo = new InMemoryFamilyRepository();
@@ -46,11 +47,13 @@ public class SearchFamilyServiceTests
 
         var result = (await NewService(repo).SearchAsync("perez")).ToList();
 
-        var single = Assert.Single(result);
-        Assert.Equal("Perez", single.Name);
+        var singleItems = result;
+        Assert.That(singleItems, Has.Exactly(1).Items);
+        var single = singleItems.Single();
+        Assert.That(single.Name, Is.EqualTo("Perez"));
     }
 
-    [Fact]
+    [Test]
     public async Task SearchAsync_NombreDelRepresentante_RetornaLaFamilia()
     {
         var repo = new InMemoryFamilyRepository();
@@ -62,12 +65,14 @@ public class SearchFamilyServiceTests
 
         var result = (await NewService(repo).SearchAsync("maria")).ToList();
 
-        var single = Assert.Single(result);
-        Assert.Equal(family.Id, single.Id);
-        Assert.Equal(profile, single.ParentProfileId);
+        var singleItems = result;
+        Assert.That(singleItems, Has.Exactly(1).Items);
+        var single = singleItems.Single();
+        Assert.That(single.Id, Is.EqualTo(family.Id));
+        Assert.That(single.ParentProfileId, Is.EqualTo(profile));
     }
 
-    [Fact]
+    [Test]
     public async Task SearchAsync_SoloDigitos_RetornaPorTelefonoDelRepresentante()
     {
         var repo = new InMemoryFamilyRepository();
@@ -80,7 +85,9 @@ public class SearchFamilyServiceTests
 
         var result = (await NewService(repo).SearchAsync("111222")).ToList();
 
-        var single = Assert.Single(result);
-        Assert.Equal(withPhone.Id, single.Id);
+        var singleItems = result;
+        Assert.That(singleItems, Has.Exactly(1).Items);
+        var single = singleItems.Single();
+        Assert.That(single.Id, Is.EqualTo(withPhone.Id));
     }
 }

@@ -2,10 +2,11 @@ using ms_user_management.Api.Driver.Application.Dto;
 using ms_user_management.Api.Driver.Application.UseCase;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace ms_user_management.Tests.Driver;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class DriverLicenseServiceTests
 {
     private static DriverLicenseRequestDto ValidRequest(Guid? profileId = null) => new()
@@ -15,7 +16,7 @@ public class DriverLicenseServiceTests
         LicenseExpirationDate = new DateOnly(2030, 12, 31)
     };
 
-    [Fact]
+    [Test]
     public async Task Create_ConDatosValidos_GuardaLicenciaActiva()
     {
         var repo = new InMemoryDriverLicenseRepository();
@@ -24,40 +25,42 @@ public class DriverLicenseServiceTests
 
         var id = await service.ExecuteAsync(ValidRequest(profileId));
 
-        var stored = Assert.Single(repo.Licenses);
-        Assert.Equal(id, stored.Id);
-        Assert.Equal(profileId, stored.ProfileId);
-        Assert.Equal("ABC12345", stored.LicenseNumber);
-        Assert.Equal(Status.Active, stored.Status);
+        var storedItems = repo.Licenses;
+        Assert.That(storedItems, Has.Exactly(1).Items);
+        var stored = storedItems.Single();
+        Assert.That(stored.Id, Is.EqualTo(id));
+        Assert.That(stored.ProfileId, Is.EqualTo(profileId));
+        Assert.That(stored.LicenseNumber, Is.EqualTo("ABC12345"));
+        Assert.That(stored.Status, Is.EqualTo(Status.Active));
     }
 
-    [Fact]
+    [Test]
     public async Task Create_SinProfileId_Rechaza()
     {
         var repo = new InMemoryDriverLicenseRepository();
         var service = new CreateDriverLicenseService(repo);
 
-        await Assert.ThrowsAsync<ArgumentException>(() =>
+        Assert.ThrowsAsync<ArgumentException>(() =>
             service.ExecuteAsync(ValidRequest(Guid.Empty)));
 
-        Assert.Empty(repo.Licenses);
+        Assert.That(repo.Licenses, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public async Task Create_ConNumeroDeLicenciaRepetido_Rechaza()
     {
         var repo = new InMemoryDriverLicenseRepository();
         var service = new CreateDriverLicenseService(repo);
         await service.ExecuteAsync(ValidRequest());
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.ExecuteAsync(ValidRequest()));
 
-        Assert.Contains("already exists", ex.Message);
-        Assert.Single(repo.Licenses);
+        Assert.That(ex.Message, Does.Contain("already exists"));
+        Assert.That(repo.Licenses, Has.Exactly(1).Items);
     }
 
-    [Fact]
+    [Test]
     public async Task Create_SinFechaDeExpiracion_Rechaza()
     {
         var repo = new InMemoryDriverLicenseRepository();
@@ -65,12 +68,12 @@ public class DriverLicenseServiceTests
         var dto = ValidRequest();
         dto.LicenseExpirationDate = default;
 
-        await Assert.ThrowsAsync<ArgumentException>(() => service.ExecuteAsync(dto));
+        Assert.ThrowsAsync<ArgumentException>(() => service.ExecuteAsync(dto));
 
-        Assert.Empty(repo.Licenses);
+        Assert.That(repo.Licenses, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public async Task List_FiltraPorProfileId()
     {
         var repo = new InMemoryDriverLicenseRepository();
@@ -83,11 +86,13 @@ public class DriverLicenseServiceTests
 
         var result = await new ListDriverLicenseService(repo).ExecuteAsync(wanted);
 
-        var row = Assert.Single(result);
-        Assert.Equal(wanted, row.ProfileId);
+        var rowItems = result;
+        Assert.That(rowItems, Has.Exactly(1).Items);
+        var row = rowItems.Single();
+        Assert.That(row.ProfileId, Is.EqualTo(wanted));
     }
 
-    [Fact]
+    [Test]
     public async Task Update_YDelete_SobreLicenciaExistente()
     {
         var repo = new InMemoryDriverLicenseRepository();
@@ -101,27 +106,27 @@ public class DriverLicenseServiceTests
                 Status = nameof(Status.Inactive)
             });
 
-        Assert.True(updated);
-        Assert.Equal("XYZ99999", repo.Licenses.Single().LicenseNumber);
-        Assert.Equal(Status.Inactive, repo.Licenses.Single().Status);
+        Assert.That(updated, Is.True);
+        Assert.That(repo.Licenses.Single().LicenseNumber, Is.EqualTo("XYZ99999"));
+        Assert.That(repo.Licenses.Single().Status, Is.EqualTo(Status.Inactive));
 
-        Assert.True(await new DeleteDriverLicenseService(repo).ExecuteAsync(id));
-        Assert.False(await new DeleteDriverLicenseService(repo).ExecuteAsync(id));
-        Assert.Empty(repo.Licenses);
+        Assert.That(await new DeleteDriverLicenseService(repo).ExecuteAsync(id), Is.True);
+        Assert.That(await new DeleteDriverLicenseService(repo).ExecuteAsync(id), Is.False);
+        Assert.That(repo.Licenses, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public async Task Update_YGet_SobreLicenciaInexistente_NoEncuentra()
     {
         var repo = new InMemoryDriverLicenseRepository();
 
-        Assert.False(await new UpdateDriverLicenseService(repo).ExecuteAsync(
+        Assert.That(await new UpdateDriverLicenseService(repo).ExecuteAsync(
             Guid.NewGuid(), new UpdateDriverLicenseRequestDto
             {
                 LicenseNumber = "ABC12345",
                 LicenseExpirationDate = new DateOnly(2030, 12, 31)
-            }));
+            }), Is.False);
 
-        Assert.Null(await new GetDriverLicenseService(repo).ExecuteAsync(Guid.NewGuid()));
+        Assert.That(await new GetDriverLicenseService(repo).ExecuteAsync(Guid.NewGuid()), Is.Null);
     }
 }

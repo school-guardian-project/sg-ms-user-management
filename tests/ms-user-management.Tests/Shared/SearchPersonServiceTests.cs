@@ -8,10 +8,11 @@ using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace ms_user_management.Tests.Shared;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class SearchPersonServiceTests
 {
     private static IMapper CreateMapper()
@@ -37,7 +38,7 @@ public class SearchPersonServiceTests
         Status = default
     };
 
-    [Fact]
+    [Test]
     public async Task Search_TerminoVacio_RetornaVacio()
     {
         var service = new SearchPersonService(
@@ -49,10 +50,10 @@ public class SearchPersonServiceTests
 
         var result = await service.SearchAsync("   ");
 
-        Assert.Empty(result);
+        Assert.That(result, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public async Task Search_ConLicencia_RellenaLicenciaYVencimiento()
     {
         var personId = Guid.NewGuid();
@@ -77,13 +78,15 @@ public class SearchPersonServiceTests
 
         var result = (await service.SearchAsync("ana")).ToList();
 
-        var single = Assert.Single(result);
-        Assert.Equal("ABC12345", single.LicenseNumber);
-        Assert.Equal(new DateOnly(2030, 12, 31), single.LicenseExpirationDate);
-        Assert.Equal("ana@mail.com", single.Email);
+        var singleItems = result;
+        Assert.That(singleItems, Has.Exactly(1).Items);
+        var single = singleItems.Single();
+        Assert.That(single.LicenseNumber, Is.EqualTo("ABC12345"));
+        Assert.That(single.LicenseExpirationDate, Is.EqualTo(new DateOnly(2030, 12, 31)));
+        Assert.That(single.Email, Is.EqualTo("ana@mail.com"));
     }
 
-    [Fact]
+    [Test]
     public async Task Search_RellenaProfileId()
     {
         var personId = Guid.NewGuid();
@@ -103,11 +106,13 @@ public class SearchPersonServiceTests
 
         var result = (await service.SearchAsync("ana")).ToList();
 
-        var single = Assert.Single(result);
-        Assert.Equal(profileId, single.ProfileId);
+        var singleItems = result;
+        Assert.That(singleItems, Has.Exactly(1).Items);
+        var single = singleItems.Single();
+        Assert.That(single.ProfileId, Is.EqualTo(profileId));
     }
 
-    [Fact]
+    [Test]
     public async Task Search_ConRol_NoDevuelvePersonasDeOtroRol()
     {
         var student = Guid.NewGuid();
@@ -130,7 +135,7 @@ public class SearchPersonServiceTests
         // Sin rol "ana" devuelve a las dos; con rol solo la del rol pedido.
         var result = (await service.SearchAsync("ana", RoleId.Student)).ToList();
 
-        Assert.Equal(student, Assert.Single(result).Id);
+        Assert.That(result.Single().Id, Is.EqualTo(student));
     }
 
     private class FakePersonSearchRepository : IPersonSearchRepository
