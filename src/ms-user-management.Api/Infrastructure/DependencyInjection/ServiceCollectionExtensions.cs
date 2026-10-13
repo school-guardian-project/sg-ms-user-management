@@ -37,10 +37,11 @@ public static class ServiceCollectionExtensions
             cfg.AddProfile<PersonPersistenceProfile>();
         });
 
-        services.AddDbContext<UserManagementContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection")
-            ));
+        services.AddDbContextPool<UserManagementContext>(
+            (sp, options) => options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                sql => sql.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null)),
+            poolSize: 60);
 
         services.AddSingleton<IProducer<string, string>>(sp =>
         {

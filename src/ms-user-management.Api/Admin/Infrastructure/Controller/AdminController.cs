@@ -4,9 +4,11 @@ using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Admin.Infrastructure.Controller;
 
+[EnableRateLimiting("registration")]
 [ApiController]
 [Route("api/admins")]
 public class AdminController : ControllerBase
@@ -62,7 +64,6 @@ public class AdminController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] PersonRequestDto dto)
     {
-        if (!HasSchoolAndCity(dto)) return BadRequest("CityId and SchoolId are required for an administrator.");
         await _updateAdminService.UpdateAsync(id, dto);
         
         return Ok();
@@ -82,8 +83,4 @@ public class AdminController : ControllerBase
 
         return Ok(result);
     }
-
-    private static bool HasSchoolAndCity(PersonRequestDto dto) =>
-        dto.CityId is Guid cityId && cityId != Guid.Empty
-        && dto.SchoolId is Guid schoolId && schoolId != Guid.Empty;
 }

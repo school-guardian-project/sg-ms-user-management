@@ -152,8 +152,16 @@ public class FamilyRepositoryImpl : IFamilyRepository
         if (family is null)
             throw new InvalidOperationException($"Family not found: {familyId}");
 
+        await using var tx = await _userManagementContext.Database.BeginTransactionAsync(ct);
+        var members = await _userManagementContext.FamilyMembers
+            .Where(fm => fm.FamilyId == familyId)
+            .ToListAsync(ct);
+        _userManagementContext.FamilyMembers.RemoveRange(members);
+        await _userManagementContext.SaveChangesAsync(ct);
+
         _userManagementContext.Families.Remove(family);
         await _userManagementContext.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
     }
 
     public async Task<IReadOnlyList<FamilySearchRow>> GetAllWithGuardianAsync(

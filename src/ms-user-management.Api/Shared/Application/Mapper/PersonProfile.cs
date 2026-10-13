@@ -11,6 +11,8 @@ public class PersonProfile : Profile
         CreateMap<Person, PersonListDto>();
         CreateMap<Person, PersonResponseDto>();
         CreateMap<PersonRequestDto, Person>()
+            .ForMember(dest => dest.CityId, opt => opt.Condition(src => src.CityId.HasValue))
+            .ForMember(dest => dest.SchoolId, opt => opt.Condition(src => src.SchoolId.HasValue))
             .ForMember(
                 dest => dest.IdentificationType,
                 opt => opt.MapFrom(src =>
