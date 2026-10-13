@@ -10,7 +10,7 @@ namespace ms_user_management.Api.Driver.Infrastructure.Controller;
 
 [EnableRateLimiting("registration")]
 [ApiController]
-[Route("api/drivers")]
+[Route("api/v1/drivers")]
 public class DriverController : ControllerBase
 {
     private readonly CreateDriverService _createDriverService;

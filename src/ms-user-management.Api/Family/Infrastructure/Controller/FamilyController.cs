@@ -8,7 +8,7 @@ namespace ms_user_management.Api.Family.Infrastructure.Controller;
 
 [EnableRateLimiting("registration")]
 [ApiController]
-[Route("api/families")]
+[Route("api/v1/families")]
 public class FamilyController : ControllerBase
 {
     private readonly IRegisterFamilyUseCase _registerUseCase;

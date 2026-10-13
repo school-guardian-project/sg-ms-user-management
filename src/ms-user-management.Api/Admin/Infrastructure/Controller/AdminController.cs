@@ -10,7 +10,7 @@ namespace ms_user_management.Api.Admin.Infrastructure.Controller;
 
 [EnableRateLimiting("registration")]
 [ApiController]
-[Route("api/admins")]
+[Route("api/v1/admins")]
 public class AdminController : ControllerBase
 {
     private readonly CreateAdminService _createAdminService;

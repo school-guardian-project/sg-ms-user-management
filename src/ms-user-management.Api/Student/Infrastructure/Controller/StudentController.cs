@@ -10,7 +10,7 @@ namespace ms_user_management.Api.Student.Infrastructure.Controller;
 
 [EnableRateLimiting("registration")]
 [ApiController]
-[Route("api/students")]
+[Route("api/v1/students")]
 public class StudentController : ControllerBase
 {
     private readonly CreateStudentService _createStudentService;

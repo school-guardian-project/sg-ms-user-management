@@ -4,7 +4,7 @@ using ms_user_management.Api.Shared.Domain.Port.Out;
 namespace ms_user_management.Api.Shared.Infrastructure.Controller;
 
 [ApiController]
-[Route("api/profiles")]
+[Route("api/v1/profiles")]
 public class ProfileLookupController : ControllerBase
 {
     private readonly IPersonProfileReader _profileReader;
