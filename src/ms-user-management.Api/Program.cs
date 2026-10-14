@@ -1,9 +1,7 @@
-using System.Text;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using ms_user_management.Api.Family.Infrastructure.Grpc;
 using ms_user_management.Api.Infrastructure.DependencyInjection;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,26 +46,10 @@ builder.Services.AddRateLimiter(options =>
         }));
 });
 
-// JWT emitido por ms-iam (HS256, sin issuer/audience). Solo autenticación:
-// se usa para filtrar los listados por tenant; no hay autorización ([Authorize]).
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
-    ?? builder.Configuration["Jwt:Secret"]
-    ?? "your-256-bit-base64-encoded-secret-min-32-chars";
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.MapInboundClaims = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromMinutes(1)
-        };
-    });
+// El gateway (Kong) valida el access token RS256 y reenvía la identidad en las
+// cabeceras X-User-*. Aquí solo se confía en ellas para poblar HttpContext.User
+// y filtrar los listados por tenant; no hay autorización ([Authorize]).
+builder.Services.AddGatewayAuthentication();
 
 builder.Services.AddUserManagementServices(builder.Configuration);
 
