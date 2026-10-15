@@ -27,9 +27,14 @@ public static class ApiErrors
             ex, StatusCodes.Status400BadRequest, "School or campus not found",
             "El colegio o la sede seleccionados no existe."),
 
-        EntityNotFoundException => Problem(
+        EntityNotFoundException or PersonNotFoundException => Problem(
             ex, StatusCodes.Status404NotFound, "Not found",
             "La entidad solicitada no existe."),
+
+        // El estado enviado no es Active ni Inactive: lo corrige el formulario.
+        InvalidPersonStatusException => Problem(
+            ex, StatusCodes.Status400BadRequest, "Invalid status",
+            "El estado debe ser Active o Inactive."),
 
         // El id no tiene forma de UUID: tampoco puede existir.
         InvalidSchoolOrCampusIdException => Problem(
