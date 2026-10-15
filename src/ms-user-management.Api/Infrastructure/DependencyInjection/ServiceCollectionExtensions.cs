@@ -13,6 +13,7 @@ using ms_user_management.Api.Infrastructure.Messaging.Kafka;
 using ms_user_management.Api.Infrastructure.Grpc;
 using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Mapper;
+using ms_user_management.Api.Shared.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Application.Search.Strategy;
 using ms_user_management.Api.Shared.Application.Tenant;
@@ -70,6 +71,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonSearchStrategy, NameSearchStrategy>();
 
         services.AddScoped<SearchPersonService>();
+
+        // Cambio de estado de cuenta (activar / desactivar), comun a los roles.
+        services.AddScoped<ChangePersonStatusService>();
 
         services.AddScoped<CreateStudentService>();
         services.AddScoped<UpdateStudentService>();
