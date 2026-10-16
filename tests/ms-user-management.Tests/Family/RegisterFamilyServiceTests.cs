@@ -2,16 +2,17 @@ using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Exceptions;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace ms_user_management.Tests.Family;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class RegisterFamilyServiceTests
 {
     private static (Guid ProfileId, RelationType RelationType) Member(
         RelationType relation = RelationType.Student) => (Guid.NewGuid(), relation);
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_ConFamiliaValida_GuardaFamiliaYVinculos()
     {
         var repo = new InMemoryFamilyRepository();
@@ -27,38 +28,37 @@ public class RegisterFamilyServiceTests
                 (child, RelationType.Student)
             });
 
-        Assert.Single(repo.Families, f => f.Id == familyId && f.Name == "Perez");
-        Assert.Equal(2, members.Count);
-        Assert.Equal(2, repo.Members.Count(m => m.FamilyId == familyId));
-        Assert.Contains(repo.Members, m => m.ProfileId == parent && m.RelationType == RelationType.Parent);
-        Assert.Contains(repo.Members, m => m.ProfileId == child && m.RelationType == RelationType.Student);
+        Assert.That(repo.Families.Where(f => f.Id == familyId && f.Name == "Perez"), Has.Exactly(1).Items);
+        Assert.That(members.Count, Is.EqualTo(2));
+        Assert.That(repo.Members.Count(m => m.FamilyId == familyId), Is.EqualTo(2));
+        Assert.That(repo.Members.Any(m => m.ProfileId == parent && m.RelationType == RelationType.Parent), Is.True);
+        Assert.That(repo.Members.Any(m => m.ProfileId == child && m.RelationType == RelationType.Student), Is.True);
     }
 
-    [Fact]
-    public async Task ExecuteAsync_ConMiembroYaAsociado_RechazaCon409()
+    [Test]
+    public async Task ExecuteAsync_ConMiembroYaAsociado_Rechaza()
     {
         var repo = new InMemoryFamilyRepository();
         var taken = Guid.NewGuid();
         repo.Members.Add((Guid.NewGuid(), Guid.NewGuid(), taken, RelationType.Student));
         var service = new RegisterFamilyService(repo);
 
-        var ex = await Assert.ThrowsAsync<ProfileAlreadyInFamilyException>(() =>
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.ExecuteAsync("Perez", null,
                 new List<(Guid, RelationType)> { (taken, RelationType.Student) }));
 
-        Assert.Contains("pertenece a otra familia", ex.Message);
-        Assert.Contains(taken, ex.ProfileIds);
-        Assert.Empty(repo.Families);
+        Assert.That(ex.Message, Does.Contain("already associated"));
+        Assert.That(repo.Families, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_ConPerfilesDuplicadosEnLote_Rechaza()
     {
         var repo = new InMemoryFamilyRepository();
         var service = new RegisterFamilyService(repo);
         var same = Guid.NewGuid();
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var ex = Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.ExecuteAsync("Perez", null,
                 new List<(Guid, RelationType)>
                 {
@@ -66,28 +66,28 @@ public class RegisterFamilyServiceTests
                     (same, RelationType.Student)
                 }));
 
-        Assert.Contains("Duplicated", ex.Message);
-        Assert.Empty(repo.Families);
+        Assert.That(ex.Message, Does.Contain("Duplicated"));
+        Assert.That(repo.Families, Is.Empty);
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_ConLoteVacio_Rechaza()
     {
         var repo = new InMemoryFamilyRepository();
         var service = new RegisterFamilyService(repo);
 
-        await Assert.ThrowsAsync<ArgumentException>(() =>
+        Assert.ThrowsAsync<ArgumentException>(() =>
             service.ExecuteAsync("Perez", null, new List<(Guid, RelationType)>()));
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteAsync_SinNombre_Rechaza()
     {
         var repo = new InMemoryFamilyRepository();
         var service = new RegisterFamilyService(repo);
         var (profileId, relation) = Member();
 
-        await Assert.ThrowsAsync<ArgumentException>(() =>
+        Assert.ThrowsAsync<ArgumentException>(() =>
             service.ExecuteAsync("  ", null,
                 new List<(Guid, RelationType)> { (profileId, relation) }));
     }

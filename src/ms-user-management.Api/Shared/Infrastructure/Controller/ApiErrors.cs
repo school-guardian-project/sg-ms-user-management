@@ -27,19 +27,14 @@ public static class ApiErrors
             ex, StatusCodes.Status400BadRequest, "School or campus not found",
             "El colegio o la sede seleccionados no existe."),
 
-        EntityNotFoundException => Problem(
+        EntityNotFoundException or PersonNotFoundException => Problem(
             ex, StatusCodes.Status404NotFound, "Not found",
             "La entidad solicitada no existe."),
 
-        ProfileAlreadyInFamilyException => Problem(
-            ex, StatusCodes.Status409Conflict, "Profile already in family",
-            "Solo pueden pertenecer a una familia las personas que aun no tengan otra. "
-            + "Registra un acudiente nuevo si todos los visibles ya estan asignados."),
-
-        ArgumentException => Problem(
-            ex, StatusCodes.Status400BadRequest, "Invalid request",
-            "Revisa la familia: el nombre es obligatorio, debe tener al menos un miembro "
-            + "y no puede repetir perfiles."),
+        // El estado enviado no es Active ni Inactive: lo corrige el formulario.
+        InvalidPersonStatusException => Problem(
+            ex, StatusCodes.Status400BadRequest, "Invalid status",
+            "El estado debe ser Active o Inactive."),
 
         // El id no tiene forma de UUID: tampoco puede existir.
         InvalidSchoolOrCampusIdException => Problem(

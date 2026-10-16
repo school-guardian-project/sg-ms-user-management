@@ -4,11 +4,13 @@ using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 using ms_user_management.Api.Student.Application.UseCase;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Student.Infrastructure.Controller;
 
+[EnableRateLimiting("registration")]
 [ApiController]
-[Route("api/students")]
+[Route("api/v1/students")]
 public class StudentController : ControllerBase
 {
     private readonly CreateStudentService _createStudentService;

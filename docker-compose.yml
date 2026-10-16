@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: src/ms-user-management.Api/Dockerfile
     ports:
-      - "8080:8080"
+      - "8080"
+      - "5001"
     env_file:
       - .env
     networks:

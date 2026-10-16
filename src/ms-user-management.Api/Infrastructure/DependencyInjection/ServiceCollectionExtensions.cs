@@ -13,9 +13,12 @@ using ms_user_management.Api.Infrastructure.Messaging.Kafka;
 using ms_user_management.Api.Infrastructure.Grpc;
 using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Mapper;
+using ms_user_management.Api.Shared.Application.UseCase;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Application.Search.Strategy;
+using ms_user_management.Api.Shared.Application.Tenant;
 using ms_user_management.Api.Shared.Domain.Port.Out;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Mapper;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
@@ -35,10 +38,11 @@ public static class ServiceCollectionExtensions
             cfg.AddProfile<PersonPersistenceProfile>();
         });
 
-        services.AddDbContext<UserManagementContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection")
-            ));
+        services.AddDbContextPool<UserManagementContext>(
+            (sp, options) => options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                sql => sql.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null)),
+            poolSize: 60);
 
         services.AddSingleton<IProducer<string, string>>(sp =>
         {
@@ -56,11 +60,20 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPersonSearchRepository, PersonSearchRepository>();
         services.AddScoped<IPersonProfileReader, PersonProfileReader>();
 
+        // Filtrado multi-tenant de los listados según claims del JWT (ms-iam).
+        services.AddHttpContextAccessor();
+        services.AddScoped<ITenantProvider, JwtTenantProvider>();
+        services.AddScoped<ISchoolCampusReader, SchoolCampusReader>();
+        services.AddScoped<TenantPersonFilter>();
+
         services.AddScoped<IPersonSearchStrategy, EmailSearchStrategy>();
         services.AddScoped<IPersonSearchStrategy, IdentificationSearchStrategy>();
         services.AddScoped<IPersonSearchStrategy, NameSearchStrategy>();
 
         services.AddScoped<SearchPersonService>();
+
+        // Cambio de estado de cuenta (activar / desactivar), comun a los roles.
+        services.AddScoped<ChangePersonStatusService>();
 
         services.AddScoped<CreateStudentService>();
         services.AddScoped<UpdateStudentService>();

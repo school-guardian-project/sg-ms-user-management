@@ -10,7 +10,7 @@ namespace ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
 
 public class UserManagementContext : DbContext
 {
-    public UserManagementContext(DbContextOptions options) : base(options) { }
+    public UserManagementContext(DbContextOptions<UserManagementContext> options) : base(options) { }
     
     public DbSet<PersonEntity> Person => Set<PersonEntity>();
     public DbSet<FamilyEntity> Families => Set<FamilyEntity>();
@@ -34,11 +34,15 @@ public class UserManagementContext : DbContext
             .HasNoKey()
             .ToTable("Profile", schema: "Iam");
 
+        // Solo lectura: School.SchoolCampus expande el schoolId del JWT del admin
+        // a sus sedes para el filtrado multi-tenant de los listados.
+        modelBuilder.Entity<SchoolCampusRefEntity>()
+            .HasNoKey()
+            .ToTable("SchoolCampus", schema: "School");
+
         modelBuilder.ApplyConfiguration(new PersonConfiguration());
         modelBuilder.ApplyConfiguration(new FamilyConfiguration());
         modelBuilder.ApplyConfiguration(new FamilyMemberConfiguration());
         modelBuilder.ApplyConfiguration(new DriverLicenseConfiguration());
     }
-
-    protected UserManagementContext() { }
 }

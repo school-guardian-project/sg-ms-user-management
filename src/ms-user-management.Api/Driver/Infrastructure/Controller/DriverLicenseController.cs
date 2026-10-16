@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Driver.Application.Dto;
 using ms_user_management.Api.Driver.Application.UseCase;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Driver.Infrastructure.Controller;
 
+[EnableRateLimiting("registration")]
 [ApiController]
-[Route("api/driver-licenses")]
+[Route("api/v1/driver-licenses")]
 public class DriverLicenseController : ControllerBase
 {
     private readonly CreateDriverLicenseService _createService;

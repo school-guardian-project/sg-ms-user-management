@@ -6,10 +6,11 @@ using ms_user_management.Api.Shared.Application.Mapper;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Tests.Fakes;
-using Xunit;
+using NUnit.Framework;
 
 namespace ms_user_management.Tests.Driver;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class DriverLicenseViewTests
 {
     private static IMapper CreateMapper()
@@ -43,7 +44,7 @@ public class DriverLicenseViewTests
         Status = default
     };
 
-    [Fact]
+    [Test]
     public async Task List_ConLicencia_RellenaLicenciaYEmail()
     {
         var withLicense = Guid.NewGuid();
@@ -59,22 +60,22 @@ public class DriverLicenseViewTests
         profileReader.RoleByPerson[withLicense] = RoleId.Driver;
         profileReader.RoleByPerson[withoutLicense] = RoleId.Driver;
 
-        var service = new ListDriverService(personRepo, reader, profileReader, CreateMapper());
+        var service = new ListDriverService(personRepo, reader, profileReader, TenantFakes.NoFilter(profileReader), CreateMapper());
 
         var result = (await service.ExecuteAsync()).ToList();
 
-        Assert.Equal(2, result.Count);
+        Assert.That(result.Count, Is.EqualTo(2));
         var ana = result.Single(r => r.Id == withLicense);
-        Assert.Equal("ABC12345", ana.LicenseNumber);
-        Assert.Equal(new DateOnly(2030, 12, 31), ana.LicenseExpirationDate);
-        Assert.Equal("ana@mail.com", ana.Email);
+        Assert.That(ana.LicenseNumber, Is.EqualTo("ABC12345"));
+        Assert.That(ana.LicenseExpirationDate, Is.EqualTo(new DateOnly(2030, 12, 31)));
+        Assert.That(ana.Email, Is.EqualTo("ana@mail.com"));
 
         var luis = result.Single(r => r.Id == withoutLicense);
-        Assert.Null(luis.LicenseNumber);
-        Assert.Null(luis.LicenseExpirationDate);
+        Assert.That(luis.LicenseNumber, Is.Null);
+        Assert.That(luis.LicenseExpirationDate, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public async Task Get_ConLicencia_RellenaLicenciaEnDetalle()
     {
         var personId = Guid.NewGuid();
@@ -87,8 +88,8 @@ public class DriverLicenseViewTests
 
         var detail = await service.GetByIdAsync(personId);
 
-        Assert.Equal("ABC12345", detail.LicenseNumber);
-        Assert.Equal(new DateOnly(2030, 12, 31), detail.LicenseExpirationDate);
-        Assert.Equal("ana@mail.com", detail.Email);
+        Assert.That(detail.LicenseNumber, Is.EqualTo("ABC12345"));
+        Assert.That(detail.LicenseExpirationDate, Is.EqualTo(new DateOnly(2030, 12, 31)));
+        Assert.That(detail.Email, Is.EqualTo("ana@mail.com"));
     }
 }

@@ -4,11 +4,13 @@ using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Driver.Infrastructure.Controller;
 
+[EnableRateLimiting("registration")]
 [ApiController]
-[Route("api/drivers")]
+[Route("api/v1/drivers")]
 public class DriverController : ControllerBase
 {
     private readonly CreateDriverService _createDriverService;
