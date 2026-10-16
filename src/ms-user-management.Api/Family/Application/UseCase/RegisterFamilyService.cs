@@ -1,6 +1,7 @@
 using ms_user_management.Api.Family.Domain.Model;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Domain.Ports.Out;
+using ms_user_management.Api.Shared.Domain.Exceptions;
 using ms_user_management.Api.Shared.Domain.Model;
 using FamilyModel = ms_user_management.Api.Family.Domain.Model.Family;
 
@@ -26,8 +27,7 @@ public class RegisterFamilyService : IRegisterFamilyUseCase
         var associated = await _repository.GetAssociatedProfileIdsAsync(
             relations.Select(x => x.ProfileId), ct);
         if (associated.Count > 0)
-            throw new InvalidOperationException(
-                $"Profiles already associated with another family: {string.Join(", ", associated)}");
+            throw new ProfileAlreadyInFamilyException(associated);
 
         var family = new FamilyModel
         {

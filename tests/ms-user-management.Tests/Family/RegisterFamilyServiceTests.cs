@@ -1,5 +1,6 @@
 using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Model;
+using ms_user_management.Api.Shared.Domain.Exceptions;
 using ms_user_management.Tests.Fakes;
 using NUnit.Framework;
 

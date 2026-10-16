@@ -1,6 +1,7 @@
 using ms_user_management.Api.Family.Domain.Model;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Domain.Ports.Out;
+using ms_user_management.Api.Shared.Domain.Exceptions;
 
 namespace ms_user_management.Api.Family.Application.UseCase;
 
@@ -21,7 +22,7 @@ public class UpdateFamilyService : IUpdateFamilyUseCase
     {
         var existing = await _repository.GetByIdAsync(familyId, ct);
         if (existing is null)
-            throw new InvalidOperationException($"Family not found: {familyId}");
+            throw new EntityNotFoundException($"family {familyId}");
 
         var relations = FamilyRules.Validate(familyName, members);
 
@@ -33,8 +34,7 @@ public class UpdateFamilyService : IUpdateFamilyUseCase
             relations.Select(x => x.ProfileId), ct);
         var conflicts = associated.Except(ownProfileIds).ToList();
         if (conflicts.Count > 0)
-            throw new InvalidOperationException(
-                $"Profiles already associated with another family: {string.Join(", ", conflicts)}");
+            throw new ProfileAlreadyInFamilyException(conflicts);
 
         await _repository.UpdateAsync(familyId, familyName.Trim(),
             observations ?? string.Empty, relations, ct);
