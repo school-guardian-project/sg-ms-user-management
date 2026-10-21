@@ -3,6 +3,7 @@ using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Infrastructure.Mapper;
 using Microsoft.AspNetCore.RateLimiting;
+using ms_user_management.Api.Shared.Infrastructure.Controller;
 
 namespace ms_user_management.Api.Family.Infrastructure.Controller;
 
