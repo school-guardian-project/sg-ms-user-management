@@ -16,6 +16,7 @@ public class UserManagementContext : DbContext
     public DbSet<FamilyEntity> Families => Set<FamilyEntity>();
     public DbSet<FamilyMemberEntity> FamilyMembers => Set<FamilyMemberEntity>();
     public DbSet<DriverLicenseEntity> DriverLicenses => Set<DriverLicenseEntity>();
+    public DbSet<ProfileRefEntity> ProfileRefEntities => Set<ProfileRefEntity>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

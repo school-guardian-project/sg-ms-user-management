@@ -4,6 +4,7 @@ using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Context;
 using ms_user_management.Api.Shared.Infrastructure.Persistence.Entity;
+using ms_user_management.Api.Family.Infrastructure.Persistence;
 using Status = ms_user_management.Api.Shared.Domain.Model.Status;
 
 namespace ms_user_management.Api.Shared.Infrastructure.Persistence.Repository;
@@ -59,17 +60,45 @@ public class PersonRepository : IPersonRepository
 
         if (entity == null) throw new Exception("Person not found");
 
-        // Borrado lógico: Iam.Profile y otras ~13 tablas referencian a la persona sin cascada.
+        // Borrado lógico: Iam.Profile y FamilyMember referencian a la persona sin cascada.
+        // Todo va en la misma transacción con EF Core (sin SQL crudo) para no dejar
+        // la BD a medio borrar si alguna operación falla.
         await using var tx = await _context.Database.BeginTransactionAsync();
 
-        entity.Status = Status.Inactive;
-        await _context.SaveChangesAsync();
+        try
+        {
+            entity.Status = Status.Inactive;
+            await _context.SaveChangesAsync();
 
-        await _context.Database.ExecuteSqlInterpolatedAsync(
-            $"UPDATE Iam.Profile SET Status = 'Inactive' WHERE PersonId = {id}");
-        await _context.Database.ExecuteSqlInterpolatedAsync(
-            $"DELETE fm FROM UserManagement.FamilyMember fm JOIN Iam.Profile p ON p.Id = fm.ProfileId WHERE p.PersonId = {id}");
+            // Desactivar perfiles de Iam asociados a la persona
+            await _context.ProfileRefEntities
+                .Where(p => p.PersonId == id)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.Status, "Inactive"));
 
-        await tx.CommitAsync();
+            // Borrar familiares cuyo perfil pertenece a la persona
+            var memberIds = await _context.FamilyMembers
+                .Join(_context.ProfileRefEntities,
+                    fm => fm.ProfileId,
+                    p => p.Id,
+                    (fm, p) => new { fm.Id, p.PersonId })
+                .Where(x => x.PersonId == id)
+                .Select(x => x.Id)
+                .ToListAsync();
+
+            foreach (var memberId in memberIds)
+            {
+                var member = new FamilyMemberEntity { Id = memberId };
+                _context.FamilyMembers.Attach(member);
+                _context.FamilyMembers.Remove(member);
+            }
+            await _context.SaveChangesAsync();
+
+            await tx.CommitAsync();
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
     }
 }
