@@ -1,4 +1,5 @@
 using ms_user_management.Api.Driver.Application.Dto;
+using ms_user_management.Api.Driver.Application.Mapper;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 
 namespace ms_user_management.Api.Driver.Application.UseCase;
@@ -18,13 +19,6 @@ public class GetDriverLicenseService
 
         if (license is null) return null;
 
-        return new DriverLicenseResponseDto
-        {
-            Id = license.Id,
-            ProfileId = license.ProfileId,
-            LicenseNumber = license.LicenseNumber,
-            LicenseExpirationDate = license.LicenseExpirationDate,
-            Status = license.Status
-        };
+        return DriverLicenseMapper.ToResponseDto(license);
     }
 }

@@ -16,4 +16,7 @@ public class ProfileRefEntity
 
     /// <summary>Sede del perfil (nullable). Se usa para acotar los listados al tenant del JWT.</summary>
     public Guid? CampuseId { get; set; }
+
+    /// <summary>Estado del perfil en Iam. Solo se escribe aquí al desactivar una persona.</summary>
+    public string Status { get; set; } = string.Empty;
 }

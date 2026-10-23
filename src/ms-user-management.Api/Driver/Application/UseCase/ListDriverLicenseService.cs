@@ -1,4 +1,5 @@
 using ms_user_management.Api.Driver.Application.Dto;
+using ms_user_management.Api.Driver.Application.Mapper;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 
 namespace ms_user_management.Api.Driver.Application.UseCase;
@@ -17,12 +18,6 @@ public class ListDriverLicenseService
     {
         var licenses = await _repository.GetAllAsync(profileId, ct);
 
-        return licenses.Select(l => new DriverLicenseListDto
-        {
-            Id = l.Id,
-            ProfileId = l.ProfileId,
-            LicenseNumber = l.LicenseNumber,
-            LicenseExpirationDate = l.LicenseExpirationDate
-        }).ToList();
+        return licenses.Select(DriverLicenseMapper.ToListDto).ToList();
     }
 }

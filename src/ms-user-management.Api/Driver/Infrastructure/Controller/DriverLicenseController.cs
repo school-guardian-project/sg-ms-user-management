@@ -35,7 +35,7 @@ public class DriverLicenseController : ControllerBase
     {
         var id = await _createService.ExecuteAsync(dto, ct);
 
-        return Ok(new { id, profileId = dto.ProfileId });
+        return Ok(new CreateDriverLicenseResponseDto(id, dto.ProfileId));
     }
 
     [HttpGet]

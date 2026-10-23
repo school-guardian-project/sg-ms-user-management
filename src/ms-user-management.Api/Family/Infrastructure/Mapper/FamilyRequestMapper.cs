@@ -1,12 +1,12 @@
+using ms_user_management.Api.Family.Application.Dto;
 using ms_user_management.Api.Family.Domain.Model;
-using ms_user_management.Api.Family.Infrastructure.Controller;
 
 namespace ms_user_management.Api.Family.Infrastructure.Mapper;
 
 public static class FamilyRequestMapper
 {
     public static IReadOnlyList<(Guid ProfileId, RelationType RelationType)> ToUseCaseInput(
-        IEnumerable<FamilyController.FamilyMemberRequest> members) =>
+        IEnumerable<FamilyMemberRequest> members) =>
         members.Select(m => (
             ProfileId: Guid.Parse(m.ProfileId),
             RelationType: ParseRelationship(m.RelationshipType)
