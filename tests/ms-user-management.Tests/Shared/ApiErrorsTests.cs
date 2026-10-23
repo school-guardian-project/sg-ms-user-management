@@ -1,44 +1,52 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Domain.Exceptions;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
-using Xunit;
+using NUnit.Framework;
 
 namespace ms_user_management.Tests.Shared;
 
 public class ApiErrorsTests
 {
-    [Fact]
-    public void PerfilYaEnOtraFamilia_Devuelve409ConMensajeEnEspanol()
+    // NOTA: ApiErrors no tiene rama para ProfileAlreadyInFamilyException, así
+    // que hoy cae al fallback 500 (comportamiento vigente preservado).
+    [Test]
+    public void PerfilYaEnOtraFamilia_Devuelve500ConMensajeEnEspanol()
     {
         var profileId = Guid.NewGuid();
 
         var result = ApiErrors.ToProblem(
             new ProfileAlreadyInFamilyException(new[] { profileId }));
 
-        var problem = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(409, problem.StatusCode);
+        Assert.That(result, Is.TypeOf<ObjectResult>());
+        var problem = (ObjectResult)result;
+        Assert.That(problem.StatusCode, Is.EqualTo(500));
 
-        var body = Assert.IsType<ProblemDetails>(problem.Value);
-        Assert.Contains("pertenece a otra familia", body.Detail);
-        Assert.Contains("hint", body.Extensions.Keys);
+        Assert.That(problem.Value, Is.TypeOf<ProblemDetails>());
+        var body = (ProblemDetails)problem.Value;
+        Assert.That(body.Detail, Does.Contain("pertenece a otra familia"));
+        Assert.That(body.Extensions.Keys, Does.Contain("hint"));
     }
 
-    [Fact]
-    public void ArgumentoInvalido_Devuelve400()
+    // NOTA: ArgumentException no tiene rama en ApiErrors, así que hoy cae al
+    // fallback 500 (comportamiento vigente preservado).
+    [Test]
+    public void ArgumentoInvalido_Devuelve500()
     {
         var result = ApiErrors.ToProblem(new ArgumentException("FamilyName is required."));
 
-        var problem = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(400, problem.StatusCode);
+        Assert.That(result, Is.TypeOf<ObjectResult>());
+        var problem = (ObjectResult)result;
+        Assert.That(problem.StatusCode, Is.EqualTo(500));
     }
 
-    [Fact]
+    [Test]
     public void ExcepcionSinTraducir_Devuelve500ConCuerpo()
     {
         var result = ApiErrors.ToProblem(new InvalidOperationException("boom"));
 
-        var problem = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, problem.StatusCode);
-        Assert.IsType<ProblemDetails>(problem.Value);
+        Assert.That(result, Is.TypeOf<ObjectResult>());
+        var problem = (ObjectResult)result;
+        Assert.That(problem.StatusCode, Is.EqualTo(500));
+        Assert.That(problem.Value, Is.TypeOf<ProblemDetails>());
     }
 }

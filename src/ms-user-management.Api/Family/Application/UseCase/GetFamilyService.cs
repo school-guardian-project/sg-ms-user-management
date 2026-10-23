@@ -1,5 +1,5 @@
 using ms_user_management.Api.Family.Application.Dto;
-using ms_user_management.Api.Family.Domain.Model;
+using ms_user_management.Api.Family.Application.Mapper;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Domain.Ports.Out;
 
@@ -22,19 +22,6 @@ public class GetFamilyService : IGetFamilyUseCase
 
         var members = await _repository.GetMembersAsync(familyId, ct);
 
-        return new FamilyResponseDto
-        {
-            Id = family.Id,
-            Name = family.Name,
-            ParentProfileId = members
-                .Where(m => m.RelationType == RelationType.Parent)
-                .Select(m => (Guid?)m.ProfileId)
-                .FirstOrDefault(),
-            Children = members
-                .Where(m => m.RelationType == RelationType.Student)
-                .Select(m => m.ProfileId)
-                .ToList(),
-            Description = family.Observations
-        };
+        return FamilyMapper.ToFamilyResponse(family, members);
     }
 }

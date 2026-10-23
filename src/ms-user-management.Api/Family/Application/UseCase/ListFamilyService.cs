@@ -1,4 +1,5 @@
 using ms_user_management.Api.Family.Application.Dto;
+using ms_user_management.Api.Family.Application.Mapper;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Domain.Ports.Out;
 using ms_user_management.Api.Shared.Application.Tenant;
@@ -36,11 +37,6 @@ public class ListFamilyService : IListFamilyUseCase
         return families
             .Where(f => visibleProfiles is null
                 || (f.ParentProfileId is { } parentId && visibleProfiles.Contains(parentId)))
-            .Select(f => new FamilyListDto
-            {
-                Id = f.Family.Id,
-                Name = f.Family.Name,
-                ParentProfileId = f.ParentProfileId
-            }).ToList();
+            .Select(f => FamilyMapper.ToFamilyListDto(f.Family, f.ParentProfileId)).ToList();
     }
 }

@@ -54,7 +54,7 @@ public class UpdateFamilyServiceTests
         var repo = new InMemoryFamilyRepository();
         var profileId = Guid.NewGuid();
 
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = Assert.ThrowsAsync<EntityNotFoundException>(
             () => new UpdateFamilyService(repo).ExecuteAsync(
                 Guid.NewGuid(), "Perez", null,
                 new List<(Guid, RelationType)> { (profileId, RelationType.Parent) }));
@@ -87,12 +87,12 @@ public class UpdateFamilyServiceTests
         repo.Families.Add(NewFamily("Gomez"));
         repo.Members.Add((Guid.NewGuid(), repo.Families[1].Id, taken, RelationType.Student));
 
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = Assert.ThrowsAsync<ProfileAlreadyInFamilyException>(
             () => new UpdateFamilyService(repo).ExecuteAsync(
                 family.Id, "Perez", null,
                 new List<(Guid, RelationType)> { (taken, RelationType.Parent) }));
 
-        Assert.That(ex.Message, Does.Contain("already associated"));
+        Assert.That(ex.Message, Does.Contain("pertenece a otra familia"));
         Assert.That(repo.Families.Single(f => f.Id == family.Id).Name, Is.EqualTo("Perez"));
     }
 

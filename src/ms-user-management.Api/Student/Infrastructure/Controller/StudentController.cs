@@ -3,7 +3,7 @@ using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
-using ms_user_management.Api.Student.Application.UseCase;
+using ms_user_management.Api.Student.Domain.Ports.In;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Student.Infrastructure.Controller;
@@ -13,14 +13,14 @@ namespace ms_user_management.Api.Student.Infrastructure.Controller;
 [Route("api/v1/students")]
 public class StudentController : ControllerBase
 {
-    private readonly CreateStudentService _createStudentService;
-    private readonly GetStudentService _getStudentService;
-    private readonly DeleteStudentService _deleteStudentService;
-    private readonly ListStudentService _listStudentService;
-    private readonly UpdateStudentService _updateStudentService;
+    private readonly ICreateStudentUseCase _createStudentService;
+    private readonly IGetPersonUseCase _getStudentService;
+    private readonly IDeleteStudentUseCase _deleteStudentService;
+    private readonly IListStudentUseCase _listStudentService;
+    private readonly IUpdateStudentUseCase _updateStudentService;
     private readonly SearchPersonService _searchPersonService;
 
-    public StudentController(CreateStudentService createStudentService, GetStudentService getStudentService, DeleteStudentService deleteStudentService, ListStudentService listStudentService, UpdateStudentService updateStudentService, SearchPersonService searchPersonService)
+    public StudentController(ICreateStudentUseCase createStudentService, IGetPersonUseCase getStudentService, IDeleteStudentUseCase deleteStudentService, IListStudentUseCase listStudentService, IUpdateStudentUseCase updateStudentService, SearchPersonService searchPersonService)
     {
         _createStudentService = createStudentService;
         _getStudentService = getStudentService;
