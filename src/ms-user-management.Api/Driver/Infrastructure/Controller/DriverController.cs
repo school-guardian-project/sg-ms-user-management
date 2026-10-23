@@ -4,6 +4,7 @@ using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Driver.Infrastructure.Controller;
@@ -11,6 +12,7 @@ namespace ms_user_management.Api.Driver.Infrastructure.Controller;
 [EnableRateLimiting("registration")]
 [ApiController]
 [Route("api/v1/drivers")]
+[RequireProfile]
 public class DriverController : ControllerBase
 {
     private readonly ICreateDriverUseCase _createDriverService;
@@ -31,6 +33,7 @@ public class DriverController : ControllerBase
     }
     
     [HttpPost]
+    [RequirePermission("drivers.manage")]
     public async Task<IActionResult> Create([FromBody] CreatePersonRequestDto dto)
     {
         try
@@ -62,6 +65,7 @@ public class DriverController : ControllerBase
     }
     
     [HttpPut("{id:guid}")]
+    [RequirePermission("drivers.manage")]
     public async Task<IActionResult> Update(Guid id, [FromBody] PersonRequestDto dto)
     {
         await _updateDriverService.UpdateAsync(id, dto);
@@ -70,6 +74,7 @@ public class DriverController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission("drivers.manage")]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _deleteDriverService.DeleteAsync(id);

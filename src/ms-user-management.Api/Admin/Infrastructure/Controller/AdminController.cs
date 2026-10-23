@@ -4,6 +4,7 @@ using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Admin.Infrastructure.Controller;
@@ -11,6 +12,7 @@ namespace ms_user_management.Api.Admin.Infrastructure.Controller;
 [EnableRateLimiting("registration")]
 [ApiController]
 [Route("api/v1/admins")]
+[RequireProfile]
 public class AdminController : ControllerBase
 {
     private readonly ICreateAdminUseCase _createAdminService;
@@ -31,6 +33,7 @@ public class AdminController : ControllerBase
     }
     
     [HttpPost]
+    [RequirePermission("users.manage")]
     public async Task<IActionResult> Create([FromBody] CreateAdminRequestDto dto)
     {
         try
@@ -62,6 +65,7 @@ public class AdminController : ControllerBase
     }
     
     [HttpPut("{id:guid}")]
+    [RequirePermission("users.manage")]
     public async Task<IActionResult> Update(Guid id, [FromBody] PersonRequestDto dto)
     {
         await _updateAdminService.UpdateAsync(id, dto);
@@ -70,6 +74,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission("users.manage")]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _deleteAdminService.DeleteAsync(id);

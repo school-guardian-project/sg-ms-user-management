@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Domain.Port.Out;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 
 namespace ms_user_management.Api.Shared.Infrastructure.Controller;
 
 [ApiController]
 [Route("api/v1/profiles")]
+[RequireProfile]
 public class ProfileLookupController : ControllerBase
 {
     private readonly IPersonProfileReader _profileReader;

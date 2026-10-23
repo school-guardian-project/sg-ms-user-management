@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.UseCase;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 
 namespace ms_user_management.Api.Shared.Infrastructure.Controller;
@@ -12,6 +13,7 @@ namespace ms_user_management.Api.Shared.Infrastructure.Controller;
 /// </summary>
 [ApiController]
 [Route("api/v1/persons")]
+[RequireProfile]
 public class PersonsController : ControllerBase
 {
     private readonly ChangePersonStatusService _changeStatusService;
@@ -22,6 +24,7 @@ public class PersonsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/status")]
+    [RequirePermission("users.manage")]
     public async Task<IActionResult> ChangeStatus(Guid id, [FromBody] ChangePersonStatusRequestDto dto)
     {
         try

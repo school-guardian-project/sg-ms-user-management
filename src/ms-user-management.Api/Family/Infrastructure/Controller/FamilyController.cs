@@ -4,6 +4,7 @@ using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Infrastructure.Mapper;
 using Microsoft.AspNetCore.RateLimiting;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 
 namespace ms_user_management.Api.Family.Infrastructure.Controller;
@@ -11,6 +12,7 @@ namespace ms_user_management.Api.Family.Infrastructure.Controller;
 [EnableRateLimiting("registration")]
 [ApiController]
 [Route("api/v1/families")]
+[RequireProfile]
 public class FamilyController : ControllerBase
 {
     private readonly IRegisterFamilyUseCase _registerUseCase;
@@ -39,6 +41,7 @@ public class FamilyController : ControllerBase
     }
 
     [HttpPost]
+    [RequirePermission("users.manage")]
     public async Task<IActionResult> Register([FromBody] RegisterFamilyRequest request, CancellationToken ct)
     {
         try
@@ -92,6 +95,7 @@ public class FamilyController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [RequirePermission("users.manage")]
     public async Task<IActionResult> Update(Guid id, [FromBody] RegisterFamilyRequest request, CancellationToken ct)
     {
         try
@@ -112,6 +116,7 @@ public class FamilyController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission("users.manage")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         await _deleteUseCase.ExecuteAsync(id, ct);

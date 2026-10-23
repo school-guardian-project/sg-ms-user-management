@@ -4,6 +4,7 @@ using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 using ms_user_management.Api.Student.Domain.Ports.In;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Student.Infrastructure.Controller;
@@ -11,6 +12,7 @@ namespace ms_user_management.Api.Student.Infrastructure.Controller;
 [EnableRateLimiting("registration")]
 [ApiController]
 [Route("api/v1/students")]
+[RequireProfile]
 public class StudentController : ControllerBase
 {
     private readonly ICreateStudentUseCase _createStudentService;
@@ -31,6 +33,7 @@ public class StudentController : ControllerBase
     }
     
     [HttpPost]
+    [RequirePermission("students.manage")]
     public async Task<IActionResult> Create([FromBody] CreatePersonRequestDto dto)
     {
         try
@@ -62,6 +65,7 @@ public class StudentController : ControllerBase
     }
     
     [HttpPut("{id:guid}")]
+    [RequirePermission("students.manage")]
     public async Task<IActionResult> Update(Guid id, [FromBody] PersonRequestDto dto)
     {
         await _updateStudentService.UpdateAsync(id, dto);
@@ -70,6 +74,7 @@ public class StudentController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission("students.manage")]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _deleteStudentService.DeleteAsync(id);

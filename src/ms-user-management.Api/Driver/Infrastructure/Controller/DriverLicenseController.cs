@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Driver.Application.Dto;
 using ms_user_management.Api.Driver.Application.UseCase;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ms_user_management.Api.Driver.Infrastructure.Controller;
@@ -8,6 +9,7 @@ namespace ms_user_management.Api.Driver.Infrastructure.Controller;
 [EnableRateLimiting("registration")]
 [ApiController]
 [Route("api/v1/driver-licenses")]
+[RequireProfile]
 public class DriverLicenseController : ControllerBase
 {
     private readonly CreateDriverLicenseService _createService;
@@ -31,6 +33,7 @@ public class DriverLicenseController : ControllerBase
     }
 
     [HttpPost]
+    [RequirePermission("drivers.manage")]
     public async Task<IActionResult> Create([FromBody] DriverLicenseRequestDto dto, CancellationToken ct)
     {
         var id = await _createService.ExecuteAsync(dto, ct);
@@ -55,6 +58,7 @@ public class DriverLicenseController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [RequirePermission("drivers.manage")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDriverLicenseRequestDto dto, CancellationToken ct)
     {
         var updated = await _updateService.ExecuteAsync(id, dto, ct);
@@ -63,6 +67,7 @@ public class DriverLicenseController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission("drivers.manage")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var deleted = await _deleteService.ExecuteAsync(id, ct);
