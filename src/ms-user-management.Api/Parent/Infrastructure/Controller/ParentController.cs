@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ms_user_management.Api.Parent.Application.UseCase;
+using ms_user_management.Api.Parent.Domain.Ports.In;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
@@ -13,14 +13,14 @@ namespace ms_user_management.Api.Parent.Infrastructure.Controller;
 [Route("api/v1/parents")]
 public class ParentController : ControllerBase
 {
-    private readonly CreateParentService _createParentService;
-    private readonly GetParentService _getParentService;
-    private readonly DeleteParentService _deleteParentService;
-    private readonly ListParentService _listParentService;
-    private readonly UpdateParentService _updateParentService;
+    private readonly ICreateParentUseCase _createParentService;
+    private readonly IGetPersonUseCase _getParentService;
+    private readonly IDeleteParentUseCase _deleteParentService;
+    private readonly IListParentUseCase _listParentService;
+    private readonly IUpdateParentUseCase _updateParentService;
     private readonly SearchPersonService _searchPersonService;
 
-    public ParentController(CreateParentService createParentService, GetParentService getParentService, DeleteParentService deleteParentService, ListParentService listParentService, UpdateParentService updateParentService, SearchPersonService searchPersonService)
+    public ParentController(ICreateParentUseCase createParentService, IGetPersonUseCase getParentService, IDeleteParentUseCase deleteParentService, IListParentUseCase listParentService, IUpdateParentUseCase updateParentService, SearchPersonService searchPersonService)
     {
         _createParentService = createParentService;
         _getParentService = getParentService;

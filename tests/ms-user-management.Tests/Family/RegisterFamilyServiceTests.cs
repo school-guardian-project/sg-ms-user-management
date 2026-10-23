@@ -43,11 +43,11 @@ public class RegisterFamilyServiceTests
         repo.Members.Add((Guid.NewGuid(), Guid.NewGuid(), taken, RelationType.Student));
         var service = new RegisterFamilyService(repo);
 
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(() =>
+        var ex = Assert.ThrowsAsync<ProfileAlreadyInFamilyException>(() =>
             service.ExecuteAsync("Perez", null,
                 new List<(Guid, RelationType)> { (taken, RelationType.Student) }));
 
-        Assert.That(ex.Message, Does.Contain("already associated"));
+        Assert.That(ex.Message, Does.Contain("pertenece a otra familia"));
         Assert.That(repo.Families, Is.Empty);
     }
 

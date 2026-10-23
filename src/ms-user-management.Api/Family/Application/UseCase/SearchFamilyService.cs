@@ -1,4 +1,5 @@
 using ms_user_management.Api.Family.Application.Dto;
+using ms_user_management.Api.Family.Application.Mapper;
 using ms_user_management.Api.Family.Domain.Ports.Out;
 
 namespace ms_user_management.Api.Family.Application.UseCase;
@@ -27,12 +28,7 @@ public class SearchFamilyService
         var rows = await _repository.GetAllWithGuardianAsync(ct);
 
         return strategy.Search(rows, search)
-            .Select(row => new FamilyListDto
-            {
-                Id = row.FamilyId,
-                Name = row.FamilyName,
-                ParentProfileId = row.ParentProfileId
-            })
+            .Select(row => FamilyMapper.ToFamilyListDto(row))
             .ToList();
     }
 }

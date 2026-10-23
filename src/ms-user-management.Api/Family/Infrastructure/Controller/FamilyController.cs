@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ms_user_management.Api.Family.Application.Dto;
 using ms_user_management.Api.Family.Application.UseCase;
 using ms_user_management.Api.Family.Domain.Ports.In;
 using ms_user_management.Api.Family.Infrastructure.Mapper;
@@ -48,15 +49,9 @@ public class FamilyController : ControllerBase
                 FamilyRequestMapper.ToUseCaseInput(request.Members),
                 ct);
 
-            return Ok(new
-            {
+            return Ok(new RegisterFamilyResponseDto(
                 familyId,
-                members = members.Select(m => new
-                {
-                    memberId = m.MemberId,
-                    profileId = m.ProfileId
-                })
-            });
+                members.Select(m => new FamilyMemberResponseDto(m.MemberId, m.ProfileId))));
         }
         catch (Exception ex)
         {
@@ -93,7 +88,7 @@ public class FamilyController : ControllerBase
     {
         var parentProfileIds = await _membersByStudentService.ExecuteAsync(studentProfileId, ct);
 
-        return Ok(parentProfileIds.Select(id => new { profileId = id }));
+        return Ok(parentProfileIds.Select(id => new FamilyMemberProfileDto(id)));
     }
 
     [HttpPut("{id:guid}")]
@@ -122,18 +117,5 @@ public class FamilyController : ControllerBase
         await _deleteUseCase.ExecuteAsync(id, ct);
 
         return NoContent();
-    }
-
-    public class RegisterFamilyRequest
-    {
-        public string FamilyName { get; set; }
-        public string? Observations { get; set; }
-        public List<FamilyMemberRequest> Members { get; set; } = new();
-    }
-
-    public class FamilyMemberRequest
-    {
-        public string ProfileId { get; set; }
-        public string RelationshipType { get; set; }
     }
 }

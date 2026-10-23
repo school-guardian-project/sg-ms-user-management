@@ -1,5 +1,5 @@
 using ms_user_management.Api.Driver.Application.Dto;
-using ms_user_management.Api.Driver.Domain.Model;
+using ms_user_management.Api.Driver.Application.Mapper;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 
 namespace ms_user_management.Api.Driver.Application.UseCase;
@@ -24,14 +24,7 @@ public class UpdateDriverLicenseService
         if (await _repository.LicenseNumberExistsAsync(licenseNumber, id, ct))
             throw new InvalidOperationException($"License number already exists: {licenseNumber}");
 
-        var license = new DriverLicense
-        {
-            Id = current.Id,
-            ProfileId = current.ProfileId,
-            LicenseNumber = licenseNumber,
-            LicenseExpirationDate = expirationDate,
-            Status = string.IsNullOrWhiteSpace(dto.Status) ? current.Status : DriverLicenseRules.ParseStatus(dto.Status)
-        };
+        var license = DriverLicenseMapper.ToUpdatedDomain(current, licenseNumber, expirationDate, dto.Status);
 
         return await _repository.UpdateAsync(license, ct);
     }

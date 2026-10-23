@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ms_user_management.Api.Driver.Application.UseCase;
+using ms_user_management.Api.Driver.Domain.Ports.In;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
@@ -13,14 +13,14 @@ namespace ms_user_management.Api.Driver.Infrastructure.Controller;
 [Route("api/v1/drivers")]
 public class DriverController : ControllerBase
 {
-    private readonly CreateDriverService _createDriverService;
-    private readonly GetDriverService _getDriverService;
-    private readonly DeleteDriverService _deleteDriverService;
-    private readonly ListDriverService _listDriverService;
-    private readonly UpdateDriverService _updateDriverService;
+    private readonly ICreateDriverUseCase _createDriverService;
+    private readonly IGetPersonUseCase _getDriverService;
+    private readonly IDeleteDriverUseCase _deleteDriverService;
+    private readonly IListDriverUseCase _listDriverService;
+    private readonly IUpdateDriverUseCase _updateDriverService;
     private readonly SearchPersonService _searchPersonService;
 
-    public DriverController(CreateDriverService createDriverService, GetDriverService getDriverService, DeleteDriverService deleteDriverService, ListDriverService listDriverService, UpdateDriverService updateDriverService, SearchPersonService searchPersonService)
+    public DriverController(ICreateDriverUseCase createDriverService, IGetPersonUseCase getDriverService, IDeleteDriverUseCase deleteDriverService, IListDriverUseCase listDriverService, IUpdateDriverUseCase updateDriverService, SearchPersonService searchPersonService)
     {
         _createDriverService = createDriverService;
         _getDriverService = getDriverService;

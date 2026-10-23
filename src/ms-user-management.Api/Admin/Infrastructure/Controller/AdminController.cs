@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ms_user_management.Api.Admin.Application.UseCase;
+using ms_user_management.Api.Admin.Domain.Ports.In;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
@@ -13,14 +13,14 @@ namespace ms_user_management.Api.Admin.Infrastructure.Controller;
 [Route("api/v1/admins")]
 public class AdminController : ControllerBase
 {
-    private readonly CreateAdminService _createAdminService;
-    private readonly GetAdminService _getAdminService;
-    private readonly DeleteAdminService _deleteAdminService;
-    private readonly ListAdminService _listAdminService;
-    private readonly UpdateAdminService _updateAdminService;
+    private readonly ICreateAdminUseCase _createAdminService;
+    private readonly IGetPersonUseCase _getAdminService;
+    private readonly IDeleteAdminUseCase _deleteAdminService;
+    private readonly IListAdminUseCase _listAdminService;
+    private readonly IUpdateAdminUseCase _updateAdminService;
     private readonly SearchPersonService _searchPersonService;
 
-    public AdminController(CreateAdminService createAdminService, GetAdminService getAdminService, DeleteAdminService deleteAdminService, ListAdminService listAdminService, UpdateAdminService updateAdminService, SearchPersonService searchPersonService)
+    public AdminController(ICreateAdminUseCase createAdminService, IGetPersonUseCase getAdminService, IDeleteAdminUseCase deleteAdminService, IListAdminUseCase listAdminService, IUpdateAdminUseCase updateAdminService, SearchPersonService searchPersonService)
     {
         _createAdminService = createAdminService;
         _getAdminService = getAdminService;
