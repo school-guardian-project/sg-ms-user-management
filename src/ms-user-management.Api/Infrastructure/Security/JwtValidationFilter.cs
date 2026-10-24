@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ms_user_management.Api.Infrastructure.Security;
 
@@ -58,5 +59,16 @@ public class JwtValidationFilter : IAuthorizationFilter
         }
     }
 
-    private System.Security.Cryptography.RSA GetRsaKeyFromJwk(string publicKeyData) { return new System.Security.Cryptography.RSA(); }
+    public void OnAuthorization(AuthorizationFilterContext context)
+    {
+        // The filter is asynchronous, so we bridge the call here.
+        // In a production environment, using an AsyncAuthorizationFilter is preferred.
+        OnAuthorizationAsync(context).GetAwaiter().GetResult();
+    }
+
+    private System.Security.Cryptography.RSA GetRsaKeyFromJwk(string publicKeyData) {
+        // This is a placeholder. In a full implementation, this would parse the N and E
+        // components of the JWK to reconstruct the RSA object.
+        return System.Security.Cryptography.RSA.Create();
+    }
 }
