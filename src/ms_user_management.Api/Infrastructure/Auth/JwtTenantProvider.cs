@@ -1,17 +1,15 @@
 using System.Security.Claims;
-using ms_user_management.Api.Domain.Ports.Out;
+using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Domain.Port.Out;
 
 namespace ms_user_management.Api.Infrastructure.Auth;
 
 /// <summary>
 /// Lee el tenant desde HttpContext.User (claims roleId/campusId/schoolId emitidos por ms-iam).
-/// Sin token o token inválido => no se filtra (compatibilidad con llamadas internas y app móvil).
+/// Sin token o token inválido => no se filtra (compatibilidad con llamadas internas).
 /// </summary>
 public class JwtTenantProvider : ITenantProvider
 {
-    private const int RoleAdmin = 1;
-    private const int RoleSuperAdmin = 5;
-
     private readonly ClaimsPrincipal? _user;
 
     public JwtTenantProvider(IHttpContextAccessor httpContextAccessor)
@@ -19,28 +17,30 @@ public class JwtTenantProvider : ITenantProvider
         _user = httpContextAccessor.HttpContext?.User;
     }
 
-    public int? RoleId => ParseInt(GetClaim("roleId"));
+    RoleId? ITenantProvider.RoleId => ParseRole(GetClaim("roleId"));
 
     public Guid? CampusId => ParseGuid(GetClaim("campusId"));
 
     public Guid? SchoolId => ParseGuid(GetClaim("schoolId"));
 
-    public bool ShouldFilter => RoleId switch
+    public bool IsSuperAdmin => ((ITenantProvider)this).RoleId == RoleId.SuperAdmin;
+
+    public bool ShouldFilter
     {
-        null => false,
-        RoleSuperAdmin => false,
-        RoleAdmin => SchoolId.HasValue,
-        >= 2 and <= 4 => CampusId.HasValue,
-        _ => false
-    };
+        get
+        {
+            var role = ((ITenantProvider)this).RoleId;
+            return role.HasValue && role.Value != RoleId.SuperAdmin;
+        }
+    }
 
     private string? GetClaim(string type) =>
         _user is { Identity.IsAuthenticated: true }
             ? _user.FindFirst(type)?.Value
             : null;
 
-    private static int? ParseInt(string? value) =>
-        int.TryParse(value, out var result) ? result : null;
+    private static RoleId? ParseRole(string? value) =>
+        Enum.TryParse<RoleId>(value, out var result) ? result : null;
 
     private static Guid? ParseGuid(string? value) =>
         Guid.TryParse(value, out var result) ? result : null;
