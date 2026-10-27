@@ -147,21 +147,23 @@ public class FamilyRepositoryImpl : IFamilyRepository
 
     public async Task DeleteAsync(Guid familyId, CancellationToken ct = default)
     {
-        var family = await _userManagementContext.Families
-            .FirstOrDefaultAsync(f => f.Id == familyId, ct);
-        if (family is null)
-            throw new InvalidOperationException($"Family not found: {familyId}");
+        var strategy = _userManagementContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async cancellationToken =>
+        {
+            await using var tx = await _userManagementContext.Database.BeginTransactionAsync(cancellationToken);
 
-        await using var tx = await _userManagementContext.Database.BeginTransactionAsync(ct);
-        var members = await _userManagementContext.FamilyMembers
-            .Where(fm => fm.FamilyId == familyId)
-            .ToListAsync(ct);
-        _userManagementContext.FamilyMembers.RemoveRange(members);
-        await _userManagementContext.SaveChangesAsync(ct);
+            await _userManagementContext.FamilyMembers
+                .Where(fm => fm.FamilyId == familyId)
+                .ExecuteDeleteAsync(cancellationToken);
 
-        _userManagementContext.Families.Remove(family);
-        await _userManagementContext.SaveChangesAsync(ct);
-        await tx.CommitAsync(ct);
+            var affected = await _userManagementContext.Families
+                .Where(f => f.Id == familyId)
+                .ExecuteDeleteAsync(cancellationToken);
+            if (affected == 0)
+                throw new InvalidOperationException($"Family not found: {familyId}");
+
+            await tx.CommitAsync(cancellationToken);
+        }, ct);
     }
 
     public async Task<IReadOnlyList<FamilySearchRow>> GetAllWithGuardianAsync(
