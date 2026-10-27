@@ -6,7 +6,8 @@ namespace ms_user_management.Api.Shared.Infrastructure.Auth;
 
 /// <summary>
 /// Lee el tenant desde HttpContext.User (claims roleId/campusId/schoolId emitidos por ms-iam).
-/// Sin token o token inválido => no se filtra (compatibilidad con llamadas internas).
+/// Sin usuario (llamadas internas gRPC) no se filtra; un usuario autenticado
+/// siempre se acota salvo el SuperAdmin, tambien si su rol falta o no se reconoce.
 /// </summary>
 public class JwtTenantProvider : ITenantProvider
 {
@@ -25,22 +26,16 @@ public class JwtTenantProvider : ITenantProvider
 
     public bool IsSuperAdmin => ((ITenantProvider)this).RoleId == RoleId.SuperAdmin;
 
-    public bool ShouldFilter
-    {
-        get
-        {
-            var role = ((ITenantProvider)this).RoleId;
-            return role.HasValue && role.Value != RoleId.SuperAdmin;
-        }
-    }
+    public bool IsAuthenticated => _user?.Identity?.IsAuthenticated == true;
+
+    public bool ShouldFilter => IsAuthenticated && !IsSuperAdmin;
 
     private string? GetClaim(string type) =>
-        _user is { Identity.IsAuthenticated: true }
-            ? _user.FindFirst(type)?.Value
-            : null;
+        IsAuthenticated ? _user!.FindFirst(type)?.Value : null;
 
+    // Un roleId fuera del catalogo se trata como ausente (fail-closed).
     private static RoleId? ParseRole(string? value) =>
-        Enum.TryParse<RoleId>(value, out var result) ? result : null;
+        Enum.TryParse<RoleId>(value, out var result) && Enum.IsDefined(result) ? result : null;
 
     private static Guid? ParseGuid(string? value) =>
         Guid.TryParse(value, out var result) ? result : null;

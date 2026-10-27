@@ -125,6 +125,63 @@ public class PersonAccessGuard
         throw new AccessDeniedException();
     }
 
+    /// <summary>
+    /// Escritura (PUT/DELETE) sobre la persona <paramref name="personId"/> del rol
+    /// <paramref name="role"/>: el staff solo dentro de su colegio; el SuperAdmin
+    /// sin restriccion. El permiso *.manage ya lo exige el controlador.
+    /// </summary>
+    public async Task EnsureCanWritePersonAsync(Guid personId, RoleId role, CancellationToken ct = default)
+    {
+        EnsureAuthenticated();
+
+        if (_user.RoleId == RoleId.SuperAdmin)
+            return;
+
+        var visible = await _tenantFilter.GetVisiblePersonIdsAsync(role, ct);
+        if (!visible.Contains(personId))
+            throw new AccessDeniedException("The person is outside your school.");
+    }
+
+    /// <summary>
+    /// Escritura sobre una persona de rol desconocido (cambio de estado). Los
+    /// administradores no entran: solo los gestiona el SuperAdmin.
+    /// </summary>
+    public async Task EnsureCanWriteAnyPersonAsync(Guid personId, CancellationToken ct = default)
+    {
+        EnsureAuthenticated();
+
+        if (_user.RoleId == RoleId.SuperAdmin)
+            return;
+
+        foreach (var role in TenantManagedRoles)
+        {
+            if ((await _tenantFilter.GetVisiblePersonIdsAsync(role, ct)).Contains(personId))
+                return;
+        }
+
+        throw new AccessDeniedException("The person is outside your school.");
+    }
+
+    /// <summary>
+    /// Escritura que involucra perfiles (miembros de una familia, conductor de
+    /// una licencia): todos deben pertenecer a una sede del colegio del staff.
+    /// </summary>
+    public async Task EnsureProfilesInTenantAsync(IEnumerable<Guid> profileIds, CancellationToken ct = default)
+    {
+        EnsureAuthenticated();
+
+        if (_user.RoleId == RoleId.SuperAdmin)
+            return;
+
+        var campusIds = await _tenantFilter.GetVisibleCampusIdsAsync(ct) ?? [];
+        var visible = await _profileReader.GetProfileIdsInCampusesAsync(campusIds, ct);
+
+        if (!profileIds.All(visible.Contains))
+            throw new AccessDeniedException("Some profiles are outside your school.");
+    }
+
+    private static readonly RoleId[] TenantManagedRoles = [RoleId.Student, RoleId.Parent, RoleId.Driver];
+
     private bool IsFamilyRole => _user.RoleId is RoleId.Parent or RoleId.Student;
 
     private bool IsStaffReaderOf(RoleId role) => role switch
@@ -147,7 +204,8 @@ public class PersonAccessGuard
         return new HashSet<Guid>(members) { profileId };
     }
 
-    private void EnsureAuthenticated()
+    /// <summary>Exige un usuario autenticado (403 si no lo hay).</summary>
+    public void EnsureAuthenticated()
     {
         if (!_user.IsAuthenticated)
             throw new AccessDeniedException("Authentication required.");

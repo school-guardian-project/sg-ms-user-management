@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Driver.Application.Dto;
 using ms_user_management.Api.Driver.Application.UseCase;
+using ms_user_management.Api.Driver.Domain.Ports.In;
 using Microsoft.AspNetCore.RateLimiting;
 using ms_user_management.Api.Shared.Domain.Model;
 using ms_user_management.Api.Shared.Infrastructure.Auth;
@@ -15,15 +16,15 @@ public class DriverLicenseController : ControllerBase
     private readonly CreateDriverLicenseService _createService;
     private readonly GetDriverLicenseService _getService;
     private readonly ListDriverLicenseService _listService;
-    private readonly UpdateDriverLicenseService _updateService;
-    private readonly DeleteDriverLicenseService _deleteService;
+    private readonly IUpdateDriverLicenseUseCase _updateService;
+    private readonly IDeleteDriverLicenseUseCase _deleteService;
 
     public DriverLicenseController(
         CreateDriverLicenseService createService,
         GetDriverLicenseService getService,
         ListDriverLicenseService listService,
-        UpdateDriverLicenseService updateService,
-        DeleteDriverLicenseService deleteService)
+        IUpdateDriverLicenseUseCase updateService,
+        IDeleteDriverLicenseUseCase deleteService)
     {
         _createService = createService;
         _getService = getService;

@@ -4,22 +4,25 @@ using RoleIds = ms_user_management.Api.Shared.Domain.Model.RoleId;
 
 namespace ms_user_management.Tests.Fakes;
 
-/// <summary>Tenant configurable para pruebas; por defecto simula "sin token" (no filtra).</summary>
+/// <summary>
+/// Tenant configurable para pruebas; por defecto simula "sin usuario" (llamada
+/// interna, no filtra). Con un rol asignado se considera autenticado, igual que
+/// JwtTenantProvider: se acota siempre salvo al SuperAdmin.
+/// </summary>
 public class FakeTenantProvider : ITenantProvider
 {
     public RoleIds? RoleId { get; set; }
     public Guid? CampusId { get; set; }
     public Guid? SchoolId { get; set; }
 
+    /// <summary>Fuerza "autenticado" sin rol (token sin roleId).</summary>
+    public bool? Authenticated { get; set; }
+
     public bool IsSuperAdmin => RoleId == RoleIds.SuperAdmin;
 
-    public bool ShouldFilter => RoleId switch
-    {
-        null => false,
-        RoleIds.SuperAdmin => false,
-        RoleIds.Admin => SchoolId.HasValue,
-        _ => CampusId.HasValue
-    };
+    public bool IsAuthenticated => Authenticated ?? RoleId is not null;
+
+    public bool ShouldFilter => IsAuthenticated && !IsSuperAdmin;
 }
 
 public class InMemorySchoolCampusReader : ISchoolCampusReader
