@@ -46,10 +46,9 @@ builder.Services.AddRateLimiter(options =>
         }));
 });
 
-// El gateway (Kong) valida el access token RS256 y reenvía la identidad en las
-// cabeceras X-User-*. Aquí solo se confía en ellas para poblar HttpContext.User
-// y filtrar los listados por tenant; no hay autorización ([Authorize]).
-builder.Services.AddGatewayAuthentication();
+// El servicio valida por su cuenta el access token RS256 de ms-iam (JWKS):
+// la identidad sale del token, no de las cabeceras X-User-* del gateway.
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddUserManagementServices(builder.Configuration);
 
@@ -69,9 +68,13 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
+app.UseAuthorization();
+
 app.UseRateLimiter();
 
-app.MapControllers();
+// Todo endpoint REST exige un access token valido. El gRPC interno
+// (FamilyGrpcService, puerto 5001) no pasa por aqui.
+app.MapControllers().RequireAuthorization();
 
 app.MapGrpcService<FamilyGrpcService>();
 

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.UseCase;
+using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 
 namespace ms_user_management.Api.Shared.Infrastructure.Controller;
@@ -22,6 +24,7 @@ public class PersonsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/status")]
+    [RequirePermission(Permissions.UsersManage)]
     public async Task<IActionResult> ChangeStatus(Guid id, [FromBody] ChangePersonStatusRequestDto dto)
     {
         try

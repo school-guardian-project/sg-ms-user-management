@@ -15,8 +15,14 @@ using ms_user_management.Api.Infrastructure.Messaging.Kafka;
 using ms_user_management.Api.Infrastructure.Grpc;
 using ms_user_management.Api.Parent.Application.UseCase;
 using ms_user_management.Api.Parent.Domain.Ports.In;
+using ms_user_management.Api.Admin.Application.Security;
+using ms_user_management.Api.Driver.Application.Security;
+using ms_user_management.Api.Family.Application.Security;
+using ms_user_management.Api.Parent.Application.Security;
 using ms_user_management.Api.Shared.Application.Mapper;
+using ms_user_management.Api.Shared.Application.Security;
 using ms_user_management.Api.Shared.Application.UseCase;
+using ms_user_management.Api.Student.Application.Security;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Application.Search.Strategy;
 using ms_user_management.Api.Shared.Application.Tenant;
@@ -74,6 +80,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISchoolCampusReader, SchoolCampusReader>();
         services.AddScoped<TenantPersonFilter>();
 
+        // Autorizacion de lecturas: lo propio, la familia o el staff del colegio.
+        // Los casos de uso de lectura se registran decorados con el guard.
+        services.AddScoped<ICurrentUser, ClaimsCurrentUser>();
+        services.AddScoped<IFamilyMembershipReader, FamilyMembershipReader>();
+        services.AddScoped<PersonAccessGuard>();
+
         services.AddScoped<IPersonSearchStrategy, EmailSearchStrategy>();
         services.AddScoped<IPersonSearchStrategy, IdentificationSearchStrategy>();
         services.AddScoped<IPersonSearchStrategy, NameSearchStrategy>();
@@ -86,14 +98,20 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICreateStudentUseCase, CreateStudentService>();
         services.AddScoped<IUpdateStudentUseCase, UpdateStudentService>();
         services.AddScoped<IDeleteStudentUseCase, DeleteStudentService>();
-        services.AddScoped<IListStudentUseCase, ListStudentService>();
-        services.AddScoped<StudentIGetPersonUseCase, GetStudentService>();
+        services.AddScoped<ListStudentService>();
+        services.AddScoped<IListStudentUseCase>(sp => new AccessControlledListStudentUseCase(
+            sp.GetRequiredService<ListStudentService>(), sp.GetRequiredService<PersonAccessGuard>()));
+        services.AddScoped<GetStudentService>();
+        services.AddScoped<StudentIGetPersonUseCase>(sp => new AccessControlledGetStudentUseCase(
+            sp.GetRequiredService<GetStudentService>(), sp.GetRequiredService<PersonAccessGuard>()));
 
         services.AddScoped<ICreateDriverUseCase, CreateDriverService>();
         services.AddScoped<IUpdateDriverUseCase, UpdateDriverService>();
         services.AddScoped<IDeleteDriverUseCase, DeleteDriverService>();
         services.AddScoped<IListDriverUseCase, ListDriverService>();
-        services.AddScoped<DriverIGetPersonUseCase, GetDriverService>();
+        services.AddScoped<GetDriverService>();
+        services.AddScoped<DriverIGetPersonUseCase>(sp => new AccessControlledGetDriverUseCase(
+            sp.GetRequiredService<GetDriverService>(), sp.GetRequiredService<PersonAccessGuard>()));
 
         services.AddScoped<IDriverLicenseRepository, DriverLicenseRepositoryImpl>();
         services.AddScoped<IPersonLicenseReader, PersonLicenseReader>();
@@ -106,19 +124,31 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICreateParentUseCase, CreateParentService>();
         services.AddScoped<IUpdateParentUseCase, UpdateParentService>();
         services.AddScoped<IDeleteParentUseCase, DeleteParentService>();
-        services.AddScoped<IListParentUseCase, ListParentService>();
-        services.AddScoped<ParentIGetPersonUseCase, GetParentService>();
+        services.AddScoped<ListParentService>();
+        services.AddScoped<IListParentUseCase>(sp => new AccessControlledListParentUseCase(
+            sp.GetRequiredService<ListParentService>(), sp.GetRequiredService<PersonAccessGuard>()));
+        services.AddScoped<GetParentService>();
+        services.AddScoped<ParentIGetPersonUseCase>(sp => new AccessControlledGetParentUseCase(
+            sp.GetRequiredService<GetParentService>(), sp.GetRequiredService<PersonAccessGuard>()));
 
         services.AddScoped<ICreateAdminUseCase, CreateAdminService>();
         services.AddScoped<IUpdateAdminUseCase, UpdateAdminService>();
         services.AddScoped<IDeleteAdminUseCase, DeleteAdminService>();
         services.AddScoped<IListAdminUseCase, ListAdminService>();
-        services.AddScoped<AdminIGetPersonUseCase, GetAdminService>();
+        services.AddScoped<GetAdminService>();
+        services.AddScoped<AdminIGetPersonUseCase>(sp => new AccessControlledGetAdminUseCase(
+            sp.GetRequiredService<GetAdminService>(), sp.GetRequiredService<PersonAccessGuard>()));
 
         services.AddGrpc();
         services.AddScoped<IRegisterFamilyUseCase, RegisterFamilyService>();
-        services.AddScoped<IListFamilyUseCase, ListFamilyService>();
-        services.AddScoped<IGetFamilyUseCase, GetFamilyService>();
+        services.AddScoped<ListFamilyService>();
+        services.AddScoped<IListFamilyUseCase>(sp => new AccessControlledListFamilyUseCase(
+            sp.GetRequiredService<ListFamilyService>(), sp.GetRequiredService<PersonAccessGuard>()));
+        services.AddScoped<GetFamilyService>();
+        services.AddScoped<IGetFamilyUseCase>(sp => new AccessControlledGetFamilyUseCase(
+            sp.GetRequiredService<GetFamilyService>(),
+            sp.GetRequiredService<ListFamilyService>(),
+            sp.GetRequiredService<PersonAccessGuard>()));
         services.AddScoped<IUpdateFamilyUseCase, UpdateFamilyService>();
         services.AddScoped<IDeleteFamilyUseCase, DeleteFamilyService>();
         services.AddScoped<GetFamilyMembersByStudentService>();
