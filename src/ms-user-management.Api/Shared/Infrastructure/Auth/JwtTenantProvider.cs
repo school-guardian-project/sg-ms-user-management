@@ -17,11 +17,11 @@ public class JwtTenantProvider : ITenantProvider
         _user = httpContextAccessor.HttpContext?.User;
     }
 
-    RoleId? ITenantProvider.RoleId => ParseRole(GetClaim("roleId"));
+    RoleId? ITenantProvider.RoleId => ParseRole(GetClaim(SgClaimTypes.RoleId));
 
-    public Guid? CampusId => ParseGuid(GetClaim("campusId"));
+    public Guid? CampusId => ParseGuid(GetClaim(SgClaimTypes.CampusId));
 
-    public Guid? SchoolId => ParseGuid(GetClaim("schoolId"));
+    public Guid? SchoolId => ParseGuid(GetClaim(SgClaimTypes.SchoolId));
 
     public bool IsSuperAdmin => ((ITenantProvider)this).RoleId == RoleId.SuperAdmin;
 

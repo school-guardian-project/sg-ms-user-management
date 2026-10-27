@@ -3,6 +3,7 @@ using ms_user_management.Api.Driver.Domain.Ports.In;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -31,6 +32,7 @@ public class DriverController : ControllerBase
     }
     
     [HttpPost]
+    [RequirePermission(Permissions.DriversManage)]
     public async Task<IActionResult> Create([FromBody] CreatePersonRequestDto dto)
     {
         try
@@ -45,23 +47,36 @@ public class DriverController : ControllerBase
         }
     }
 
+    // Propio, familia o staff del colegio: lo decide el guard de aplicacion.
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var result = await _getDriverService.GetByIdAsync(id);
-
-        return Ok(result);
+        try
+        {
+            return Ok(await _getDriverService.GetByIdAsync(id));
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
 
     [HttpGet]
+    [RequirePermission(Permissions.DriversRead)]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _listDriverService.ExecuteAsync();
-
-        return Ok(result);
+        try
+        {
+            return Ok(await _listDriverService.ExecuteAsync());
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
     
     [HttpPut("{id:guid}")]
+    [RequirePermission(Permissions.DriversManage)]
     public async Task<IActionResult> Update(Guid id, [FromBody] PersonRequestDto dto)
     {
         await _updateDriverService.UpdateAsync(id, dto);
@@ -70,6 +85,7 @@ public class DriverController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission(Permissions.DriversManage)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _deleteDriverService.DeleteAsync(id);
@@ -77,6 +93,7 @@ public class DriverController : ControllerBase
     }
 
     [HttpGet("search")]
+    [RequirePermission(Permissions.DriversRead)]
     public async Task<IActionResult> Search([FromQuery] string search)
     {
         var result = await _searchPersonService.SearchAsync(search, RoleId.Driver);

@@ -3,6 +3,7 @@ using ms_user_management.Api.Admin.Domain.Ports.In;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -31,6 +32,7 @@ public class AdminController : ControllerBase
     }
     
     [HttpPost]
+    [RequireRole(RequireRoleAttribute.SuperAdminRoleId)]
     public async Task<IActionResult> Create([FromBody] CreateAdminRequestDto dto)
     {
         try
@@ -45,23 +47,36 @@ public class AdminController : ControllerBase
         }
     }
 
+    // Propio, familia o staff del colegio: lo decide el guard de aplicacion.
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var result = await _getAdminService.GetByIdAsync(id);
-
-        return Ok(result);
+        try
+        {
+            return Ok(await _getAdminService.GetByIdAsync(id));
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
 
     [HttpGet]
+    [RequireRole(RequireRoleAttribute.SuperAdminRoleId)]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _listAdminService.ExecuteAsync();
-
-        return Ok(result);
+        try
+        {
+            return Ok(await _listAdminService.ExecuteAsync());
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
     
     [HttpPut("{id:guid}")]
+    [RequireRole(RequireRoleAttribute.SuperAdminRoleId)]
     public async Task<IActionResult> Update(Guid id, [FromBody] PersonRequestDto dto)
     {
         await _updateAdminService.UpdateAsync(id, dto);
@@ -70,6 +85,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequireRole(RequireRoleAttribute.SuperAdminRoleId)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _deleteAdminService.DeleteAsync(id);
@@ -77,6 +93,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("search")]
+    [RequireRole(RequireRoleAttribute.SuperAdminRoleId)]
     public async Task<IActionResult> Search([FromQuery] string search)
     {
         var result = await _searchPersonService.SearchAsync(search, RoleId.Admin);

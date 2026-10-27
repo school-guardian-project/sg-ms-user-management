@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Application.Dto;
 using ms_user_management.Api.Shared.Application.Search;
 using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Infrastructure.Auth;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 using ms_user_management.Api.Student.Domain.Ports.In;
 using Microsoft.AspNetCore.RateLimiting;
@@ -31,6 +32,7 @@ public class StudentController : ControllerBase
     }
     
     [HttpPost]
+    [RequirePermission(Permissions.StudentsManage)]
     public async Task<IActionResult> Create([FromBody] CreatePersonRequestDto dto)
     {
         try
@@ -45,23 +47,35 @@ public class StudentController : ControllerBase
         }
     }
 
+    // Propio, familia o staff del colegio: lo decide el guard de aplicacion.
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var result = await _getStudentService.GetByIdAsync(id);
-
-        return Ok(result);
+        try
+        {
+            return Ok(await _getStudentService.GetByIdAsync(id));
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _listStudentService.ExecuteAsync();
-
-        return Ok(result);
+        try
+        {
+            return Ok(await _listStudentService.ExecuteAsync());
+        }
+        catch (Exception ex)
+        {
+            return ApiErrors.ToProblem(ex);
+        }
     }
     
     [HttpPut("{id:guid}")]
+    [RequirePermission(Permissions.StudentsManage)]
     public async Task<IActionResult> Update(Guid id, [FromBody] PersonRequestDto dto)
     {
         await _updateStudentService.UpdateAsync(id, dto);
@@ -70,6 +84,7 @@ public class StudentController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [RequirePermission(Permissions.StudentsManage)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _deleteStudentService.DeleteAsync(id);
@@ -77,6 +92,7 @@ public class StudentController : ControllerBase
     }
 
     [HttpGet("search")]
+    [RequirePermission(Permissions.StudentsRead)]
     public async Task<IActionResult> Search([FromQuery] string search)
     {
         var result = await _searchPersonService.SearchAsync(search, RoleId.Student);
