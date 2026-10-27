@@ -1,6 +1,7 @@
 using ms_user_management.Api.Shared.Domain.Event;
 using ms_user_management.Api.Shared.Domain.Exceptions;
 using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Domain.Port.In;
 using ms_user_management.Api.Shared.Domain.Port.Out;
 
 namespace ms_user_management.Api.Shared.Application.UseCase;
@@ -10,7 +11,7 @@ namespace ms_user_management.Api.Shared.Application.UseCase;
 /// <c>user.status.changed</c> para que ms-iam refleje el estado en su
 /// <c>Profile</c> (login y asignaciones). Compartido por los cuatro roles.
 /// </summary>
-public class ChangePersonStatusService
+public class ChangePersonStatusService : IChangePersonStatusUseCase
 {
     private const string Topic = "user.status.changed";
 

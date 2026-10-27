@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ms_user_management.Api.Shared.Application.Dto;
-using ms_user_management.Api.Shared.Application.UseCase;
 using ms_user_management.Api.Shared.Domain.Model;
+using ms_user_management.Api.Shared.Domain.Port.In;
 using ms_user_management.Api.Shared.Infrastructure.Auth;
 using ms_user_management.Api.Shared.Infrastructure.Controller;
 
@@ -16,9 +16,9 @@ namespace ms_user_management.Api.Shared.Infrastructure.Controller;
 [Route("api/v1/persons")]
 public class PersonsController : ControllerBase
 {
-    private readonly ChangePersonStatusService _changeStatusService;
+    private readonly IChangePersonStatusUseCase _changeStatusService;
 
-    public PersonsController(ChangePersonStatusService changeStatusService)
+    public PersonsController(IChangePersonStatusUseCase changeStatusService)
     {
         _changeStatusService = changeStatusService;
     }

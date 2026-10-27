@@ -1,8 +1,9 @@
+using ms_user_management.Api.Driver.Domain.Ports.In;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 
 namespace ms_user_management.Api.Driver.Application.UseCase;
 
-public class DeleteDriverLicenseService
+public class DeleteDriverLicenseService : IDeleteDriverLicenseUseCase
 {
     private readonly IDriverLicenseRepository _repository;
 

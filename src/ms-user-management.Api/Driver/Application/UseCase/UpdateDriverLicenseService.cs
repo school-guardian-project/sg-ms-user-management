@@ -1,10 +1,11 @@
 using ms_user_management.Api.Driver.Application.Dto;
 using ms_user_management.Api.Driver.Application.Mapper;
+using ms_user_management.Api.Driver.Domain.Ports.In;
 using ms_user_management.Api.Driver.Domain.Ports.Out;
 
 namespace ms_user_management.Api.Driver.Application.UseCase;
 
-public class UpdateDriverLicenseService
+public class UpdateDriverLicenseService : IUpdateDriverLicenseUseCase
 {
     private readonly IDriverLicenseRepository _repository;
 
