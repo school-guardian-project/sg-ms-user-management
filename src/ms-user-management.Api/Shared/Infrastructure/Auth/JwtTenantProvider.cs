@@ -4,8 +4,6 @@ using ms_user_management.Api.Shared.Domain.Port.Out;
 
 namespace ms_user_management.Api.Shared.Infrastructure.Auth;
 
-/// <summary>
-/// Lee el tenant desde HttpContext.User (claims roleId/campusId/schoolId emitidos por ms-iam).
 /// Sin usuario (llamadas internas gRPC) no se filtra; un usuario autenticado
 /// siempre se acota salvo el SuperAdmin, tambien si su rol falta o no se reconoce.
 /// </summary>
@@ -26,7 +24,7 @@ public class JwtTenantProvider : ITenantProvider
 
     public bool IsSuperAdmin => ((ITenantProvider)this).RoleId == RoleId.SuperAdmin;
 
-    public bool IsAuthenticated => _user?.Identity?.IsAuthenticated == true;
+public bool IsAuthenticated => _user?.Identity?.IsAuthenticated == true;
 
     public bool ShouldFilter => IsAuthenticated && !IsSuperAdmin;
 
