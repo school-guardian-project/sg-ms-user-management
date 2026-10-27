@@ -11,12 +11,12 @@ namespace ms_user_management.Api.Shared.Infrastructure.Auth;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 public sealed class RequireProfileAttribute : Attribute, IAsyncAuthorizationFilter, IOrderedFilter
 {
-    /// <summary>Corre despues de los filtros de rol/permiso (Order -20).</summary>
+    /// <summary>Corre despues de <see cref="RequireRoleAttribute"/> (Order -20).</summary>
     public int Order => -10;
 
     public Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
-        var profileId = context.HttpContext.User.FindFirstValue("sub");
+        var profileId = context.HttpContext.User.FindFirstValue(SgClaimTypes.Subject);
         if (!Guid.TryParse(profileId, out var id) || id == Guid.Empty)
         {
             context.Result = new UnauthorizedResult();

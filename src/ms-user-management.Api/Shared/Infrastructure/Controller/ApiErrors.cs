@@ -27,6 +27,11 @@ public static class ApiErrors
             ex, StatusCodes.Status400BadRequest, "School or campus not found",
             "El colegio o la sede seleccionados no existe."),
 
+        // El recurso no es del usuario, ni de su familia, ni de su colegio.
+        AccessDeniedException => Problem(
+            ex, StatusCodes.Status403Forbidden, "Forbidden",
+            "No tienes permiso para ver este recurso."),
+
         EntityNotFoundException or PersonNotFoundException => Problem(
             ex, StatusCodes.Status404NotFound, "Not found",
             "La entidad solicitada no existe."),
