@@ -128,6 +128,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IDriverLicenseRepository, DriverLicenseRepositoryImpl>();
         services.AddScoped<IPersonLicenseReader, PersonLicenseReader>();
+        services.AddScoped<IPersonLicenseWriter, PersonLicenseWriter>();
         services.AddScoped<CreateDriverLicenseService>();
         services.AddScoped<GetDriverLicenseService>();
         services.AddScoped<ListDriverLicenseService>();

@@ -17,4 +17,8 @@ public class PersonRequestDto
     public DateOnly DateBirth { get; set; }
     public Guid? CityId { get; set; }
     public Guid? SchoolId { get; set; }
+
+    /// <summary>Solo conductores: se persiste en DriverLicense, no en Person.</summary>
+    public string? LicenseNumber { get; set; }
+    public DateOnly? LicenseExpirationDate { get; set; }
 }
