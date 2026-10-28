@@ -11,7 +11,7 @@ public class FamilyMemberConfiguration : IEntityTypeConfiguration<FamilyMemberEn
         builder.HasKey(x => x.Id);
         builder.Property(x => x.RelationType).HasColumnName("RelationshipType").HasConversion<string>().HasMaxLength(20).IsRequired();
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(20).IsRequired();
-        builder.ToTable(t => t.HasCheckConstraint("CK_FamilyMember_RelationType", "[RelationType] IN ('Parent', 'Student')"));
-        builder.HasOne(x => x.Family).WithMany().HasForeignKey(x => x.FamilyId).OnDelete(DeleteBehavior.Cascade);
+        builder.ToTable(t => t.HasCheckConstraint("CK_FamilyMember_RelationType", "[RelationshipType] IN ('Parent', 'Student')"));
+        builder.HasOne(x => x.Family).WithMany().HasForeignKey(x => x.FamilyId).OnDelete(DeleteBehavior.NoAction);
     }
 }
