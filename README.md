@@ -21,6 +21,15 @@ conservan su sede; este contrato no implementa traslados entre sedes.
 El DTO compartido de actualizacion incluye `cityId` y `schoolId` para el PUT
 de administradores; el controlador exige ambos y publica la reasignacion de escuela.
 
+## Student detail and route assignment
+
+The student detail response includes the associated IAM `profileId`, resolved
+with the same profile reader used by student lists. This is distinct from the
+person `id`: route assignments store the profile identifier. If there is no
+associated profile, the response leaves `profileId` null rather than substituting
+the person ID. The web client prevents assignment without a valid profile.
+Existing access-control decorators remain unchanged.
+
 ## Retry-safe record deletion
 
 Person deletion (administrators, parents, students and drivers) logically
