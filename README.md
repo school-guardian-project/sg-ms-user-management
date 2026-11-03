@@ -1,54 +1,52 @@
 # sg-ms-user-management
 
-`Person.Phone` se almacena como `BIGINT`. La entidad, el modelo y los DTO de
-persona/familia usan `long` para conservar telefonos de diez digitos.
-Si el contenedor ejecuta una imagen anterior con `int`, la consulta del perfil
-puede responder 500 con `InvalidCastException`; reconstruir el servicio con
-`docker compose up -d --build --no-deps ms-user-management.api`.
+User management microservice for School Guardian, handling students, drivers, parents, families, and administrators with campus and school associations.
 
-## Escuela y sede de los usuarios
+## Getting Started
 
-Los POST de estudiantes, conductores y acudientes requieren `campusId`, que debe
-identificar una sede activa de una escuela activa. Si falta o no existe, devuelven
-400 antes de guardar la persona. Sus eventos `student.created`, `driver.created` y
-`parent.created` incluyen `CampusId`; IAM persiste la relacion en
-`Iam.Profile.CampuseId`. La escuela se obtiene desde `SchoolCampus.SchoolId`.
+These instructions will give you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on deploying the project on a live system.
 
-Los administradores siguen enviando `schoolId`: IAM mantiene la relacion existente
-`School.SchoolAdmin`, sin reemplazarla por una sede. Los PUT de usuarios normales
-conservan su sede; este contrato no implementa traslados entre sedes.
+### Prerequisites
 
-El DTO compartido de actualizacion incluye `cityId` y `schoolId` para el PUT
-de administradores; el controlador exige ambos y publica la reasignacion de escuela.
+Requirements for the software and other tools to build, test and push:
 
-## Student detail and route assignment
+- .NET SDK
+- Docker
+- Docker Compose
 
-The student detail response includes the associated IAM `profileId`, resolved
-with the same profile reader used by student lists. This is distinct from the
-person `id`: route assignments store the profile identifier. If there is no
-associated profile, the response leaves `profileId` null rather than substituting
-the person ID. The web client prevents assignment without a valid profile.
-Existing access-control decorators remain unchanged.
+### Installing
 
-## Retry-safe record deletion
+A step by step series of examples that tell you how to get a development environment running.
 
-Person deletion (administrators, parents, students and drivers) logically
-deactivates the person and their IAM profiles and removes their family
-memberships in one transaction. Family deletion removes the family and its
-memberships atomically. Both transactions run inside EF Core's execution
-strategy, as required by SQL Server's `EnableRetryOnFailure`. Set-based writes
-allow a rolled-back attempt to be replayed without stale tracked entity states.
-Existing authorization and school-scoping rules are unchanged.
+Start the service with Docker Compose:
 
-Regression tests use an in-memory SQLite database with SQL Server's retry
-strategy to check successful deletion, rollback, transient retries, retry
-exhaustion and isolation of unrelated records. They do not contact production
-SQL Server or send events:
+    docker compose up -d
 
-```powershell
-dotnet test .\tests\ms-user-management.Tests\ms-user-management.Tests.csproj --filter FullyQualifiedName~RecordDeletionPersistenceTests
-```
+## Running the tests
 
-Rebuild and deploy `ms-user-management` after merging the hotfix. A successful
-authorized DELETE responds with `204 No Content`; a previously deployed image
-will continue to exhibit the old transaction failure.
+Explain how to run the automated tests for this system.
+
+### Sample Tests
+
+Explain what these tests test and why.
+
+### Style test
+
+Checks if the best practices and the right coding style has been used.
+
+## Deployment
+
+Add additional notes to deploy this on a live system.
+
+## Built With
+
+- .NET
+- Docker Compose — Local development stack
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the SCHOOL GUARDIAN PROPRIETARY SOFTWARE LICENSE Version 1.0 — 2026. See the [LICENSE](LICENSE) file for details.
